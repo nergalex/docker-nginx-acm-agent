@@ -56,6 +56,8 @@ if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
     echo " ---> using controller api url = ${controller_host}" && \
     sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: $controller_host@' \
 	${agent_conf_file}"
+    sh -c "sed -i.old -e 's@^nginx_fqdn=\s.*@  nginx_fqdn=$controller_host@' \
+	./install.sh"
 
     test -n "${instance_group}" && \
     echo " ---> using instance group = ${instance_group}" && \
