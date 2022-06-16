@@ -1,4 +1,4 @@
-ARG STORE_UUID=False
+#ARG STORE_UUID=False
 FROM centos:7 as nginx-installer
 
 LABEL maintainer="NGINX Controller Engineering"
@@ -41,14 +41,12 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
-ARG API_KEY
-ENV ENV_CONTROLLER_API_KEY=$API_KEY
-ARG STORE_UUID
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
+#ARG STORE_UUID
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-  curl -k -sS -L https://${CONTROLLER_HOST}/install/nginx-agent > install.sh \
-#  && sed -i 's/^assume_yes=""/assume_yes="-y"/' install.sh \
-#  && sed -i 's,-n "${NGINX_GPGKEY}",true,' install.sh \
+  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh
 
 FROM agent-installer as nap-installer
@@ -75,27 +73,27 @@ RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
 
 FROM cleaner as runner
 ## e.g '1234567890'
-ARG API_KEY
-ENV ENV_CONTROLLER_API_KEY=$API_KEY
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
 
 # e.g https://<fqdn>/install/controller-agent
 ARG CONTROLLER_HOST
 ENV ENV_CONTROLLER_HOST=$CONTROLLER_HOST
 
 # e.g True or False
-ARG STORE_UUID
-ENV ENV_CONTROLLER_STORE_UUID=$STORE_UUID
+#ARG STORE_UUID
+#ENV ENV_CONTROLLER_STORE_UUID=$STORE_UUID
 
 # e.g Instance location already defined in Controller
-ARG LOCATION
-ENV ENV_CONTROLLER_LOCATION=$LOCATION
+#ARG LOCATION
+#ENV ENV_CONTROLLER_LOCATION=$LOCATION
 
 # e.g Instance group already defined in Controller
 ARG INSTANCE_GROUP
 ENV ENV_CONTROLLER_INSTANCE_GROUP=$INSTANCE_GROUP
 
 # Forward request logs to Docker log collector
-RUN ln -sf /proc/1/fd/1 /var/log/nginx-controller/agent.log \
+RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
   && ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 
 COPY custom_log_format.json /etc/nginx/
