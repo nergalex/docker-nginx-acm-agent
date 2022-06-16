@@ -8,7 +8,9 @@ ARG NGINX_PLUS_VERSION=26
 
 COPY nginx-plus-api.conf /etc/nginx/conf.d/
 COPY entrypoint.sh /
+# change lab k8s - start
 COPY remove.sh /
+# change lab k8s - end
 
 ENV NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 
@@ -31,30 +33,43 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     gpg --keyserver "$server" --recv-keys "0x$NGINX_GPGKEY" && found=yes && break; \
   done; \
   test -z "$found" && echo >&2 "error: failed to fetch GPG key $NGINX_GPGKEY" && exit 1; \
-  wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nginx-plus-7.4.repo
+  wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nginx-plus-7.4.repo \
   # NGINX Javascript module needed for APIM
   && yum update && yum -y install nginx-plus-${NGINX_PLUS_VERSION}* nginx-plus-module-njs-${NGINX_PLUS_VERSION}*
 
 FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
-
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
+#ARG STORE_UUID
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh
 
-FROM nap-installer as cleaner
+FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
 RUN gpg --list-keys
 RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
   && gpg --batch --delete-keys $NGINX_GPGKEY
 
 FROM cleaner as runner
+## e.g '1234567890'
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
 
-# e.g https://<fqdn>/install/nginx-agent
+# e.g https://<fqdn>/install/controller-agent
 ARG CONTROLLER_HOST
 ENV ENV_CONTROLLER_HOST=$CONTROLLER_HOST
+
+# e.g True or False
+#ARG STORE_UUID
+#ENV ENV_CONTROLLER_STORE_UUID=$STORE_UUID
+
+# e.g Instance location already defined in Controller
+#ARG LOCATION
+#ENV ENV_CONTROLLER_LOCATION=$LOCATION
 
 # e.g Instance group already defined in Controller
 ARG INSTANCE_GROUP
