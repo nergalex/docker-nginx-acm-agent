@@ -90,14 +90,16 @@ wait_term()
     echo "waiting for nginx to stop..."
     wait ${nginx_pid}
     # unregister - start
-    echo " UNREGISTER instance from Controller"
-    export ENV_CONTROLLER_INSTANCE_NAME=${instance_name}
-# ToDo
-#    sh remove.sh
+    echo " UNREGISTER instance from ACM"
+    export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
+    export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
+    export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
+    export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
+    sh remove.sh
     echo " UNREGISTER done"
     # unregister - end
 }
 
 wait_term
 
-echo "controller-agent process has stopped, exiting."
+echo "acm-agent process has stopped, exiting."

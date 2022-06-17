@@ -1,5 +1,6 @@
-# Authenticate to controller with credentials in order to get the Session Token
-curl --connect-timeout 30 --retry 10 --retry-delay 5 -sk -c cookie.txt -X POST --url 'https://'${ENV_CONTROLLER_API_URL}'/api/v1/platform/login' --header 'Content-Type: application/json' --data '{"credentials": {"type": "BASIC","username": "'"${ENV_CONTROLLER_USERNAME}"'","password": "'"${ENV_CONTROLLER_PASSWORD}"'"}}'
-
-# Remove the instance from infrastructure
-curl --connect-timeout 30 --retry 10 --retry-delay 5  -sk -b cookie.txt -c cookie.txt  --header 'Content-Type: application/json' -X DELETE --url 'https://'${ENV_CONTROLLER_API_URL}'/api/v1/infrastructure/locations/'${ENV_CONTROLLER_LOCATION}'/instances/'${ENV_CONTROLLER_INSTANCE_NAME}
+curl --connect-timeout 30 --retry 10 --retry-delay 5 -sk -u "${ENV_CONTROLLER_USER}:${ENV_CONTROLLER_PASSWORD}" --header 'Content-Type: application/json' -X GET --url "https://${ENV_CONTROLLER_HOST}/api/platform/v1/instances?instGroupName=${ENV_CONTROLLER_INSTANCE_GROUP}" -o instances.json
+ENV_SYS_UID=$(jq '.items[] | select(.displayName == "'$(hostname)'") | .systemUid' instances.json)
+ENV_SYS_UID=$(echo "${ENV_SYS_UID}" | tr -d '"')
+ENV_INSTANCE_UID=$(jq '.items[] | select(.displayName == "'$(hostname)'") | .uid' instances.json)
+ENV_INSTANCE_UID=$(echo "${ENV_INSTANCE_UID}" | tr -d '"')
+curl --connect-timeout 30 --retry 10 --retry-delay 5 -sk -u "${ENV_CONTROLLER_USER}:${ENV_CONTROLLER_PASSWORD}" -X DELETE --url "https://${ENV_CONTROLLER_HOST}/api/platform/v1/systems/${ENV_SYS_UID}/instances/${ENV_INSTANCE_UID}"
