@@ -46,16 +46,14 @@ ARG CONTROLLER_IP
 #ARG STORE_UUID
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-  echo "${CONTROLLER_IP}    ${CONTROLLER_HOST}" >> /etc/hosts \
-  && curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" --resolve "${CONTROLLER_HOST}:443:${CONTROLLER_IP}" > install.sh \
+  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh
 
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
 RUN gpg --list-keys
 RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
-  && gpg --batch --delete-keys $NGINX_GPGKEY \
-  && sed -i '$d' /etc/hosts
+  && gpg --batch --delete-keys $NGINX_GPGKEY
 
 FROM cleaner as runner
 ## e.g '1234567890'
