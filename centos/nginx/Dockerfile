@@ -40,6 +40,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
+ARG CONTROLLER_IP
 #ARG API_KEY
 #ENV ENV_CONTROLLER_API_KEY=$API_KEY
 #ARG STORE_UUID
