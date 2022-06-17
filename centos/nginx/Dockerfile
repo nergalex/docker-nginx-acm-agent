@@ -54,7 +54,8 @@ FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
 RUN gpg --list-keys
 RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
-  && gpg --batch --delete-keys $NGINX_GPGKEY
+  && gpg --batch --delete-keys $NGINX_GPGKEY \
+  && sed -i '$d' /etc/hosts
 
 FROM cleaner as runner
 ## e.g '1234567890'
