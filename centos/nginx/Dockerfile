@@ -46,7 +46,8 @@ ARG CONTROLLER_IP
 #ARG STORE_UUID
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" --resolve "${CONTROLLER_HOST}:443:${CONTROLLER_IP}" > install.sh \
+  echo "${CONTROLLER_IP}    ${CONTROLLER_HOST}" >> /etc/hosts \
+  && curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" --resolve "${CONTROLLER_HOST}:443:${CONTROLLER_IP}" > install.sh \
   && sh ./install.sh
 
 FROM agent-installer as cleaner
