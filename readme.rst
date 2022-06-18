@@ -23,6 +23,6 @@ Deploy
 
     kubectl apply -f ./manifest.yaml
 
-
-
+*Note*: Because NGINX Management Suite requires a idle time out of 60s before a NGINX agent is set to offline state,
+set in K8S Deployment: ``spec.template.spec.terminationGracePeriodSeconds`` > 60s
 
