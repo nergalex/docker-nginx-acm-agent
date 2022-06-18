@@ -90,15 +90,16 @@ wait_term()
     echo "waiting for nginx to stop..."
     wait ${nginx_pid}
     # unregister - start
-    echo " UNREGISTER instance from ACM"
+    echo "UNREGISTER instance from ACM"
     export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
     export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
     export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
     export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
-    sleep 60
+    sleep 15
+    echo "remove.sh"
     sh remove.sh
-    echo " UNREGISTER done"
-    sleep 60
+    echo "UNREGISTER done"
+    sleep 15
     # unregister - end
 }
 
