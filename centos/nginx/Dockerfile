@@ -18,7 +18,7 @@ ENV NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
   --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   set -ex \
-  && yum -y update && yum -y upgrade \
+  # && yum -y update && yum -y upgrade \
   && yum -y install epel-release \
   && yum -y install wget ca-certificates epel-release curl sudo vim procps gnupg binutils net-tools \
   && \
