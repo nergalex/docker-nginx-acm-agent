@@ -95,8 +95,10 @@ wait_term()
     export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
     export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
     export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
+    sleep 60
     sh remove.sh
     echo " UNREGISTER done"
+    sleep 60
     # unregister - end
 }
 
