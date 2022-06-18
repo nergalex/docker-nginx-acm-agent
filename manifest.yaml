@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nginx-acm
+  namespace: lab5-sentence-api-managed
+  labels:
+    app: nginx-acm
+    type: external
+spec:
+subsets:
+  - addresses:
+      - ip: "10.0.0.4"
+    ports:
+      - port: 443
+        name: nginx-acm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-acm
+  namespace: lab5-sentence-api-managed
+  labels:
+    app: nginx-acm
+    type: external
+spec:
+  ports:
+    - name: nginx-acm
+      protocol: TCP
+      port: 443
+      targetPort: 443
+      nodePort: 0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-acm
+  namespace: lab5-sentence-api-managed
+  labels:
+    app: nginx-acm
+    service: lab5-sentence-api-managed
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: nginx-acm
+      service: lab5-sentence-api-managed
+  template:
+    metadata:
+      labels:
+        app: nginx-acm
+        service: lab5-sentence-api-managed
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+      - name: nginx-agent
+        image: "aksdistrict3.azurecr.io/nginx-agent:aks"
+        env:
+          - name: ENV_CONTROLLER_INSTANCE_GROUP
+            value: "sentence-non-prod"
+          - name: ENV_CONTROLLER_HOST
+            value: "nginx-acm"
+          - name: ENV_CONTROLLER_USER
+            value: "admin"
+          - name: ENV_CONTROLLER_PASSWORD
+            value: "XXX"
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        resources:
+          limits:
+            cpu: '1'
+            ephemeral-storage: 1Gi
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 150Mi
+            memory: 1Gi
