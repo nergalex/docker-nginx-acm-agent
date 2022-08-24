@@ -1,13 +1,17 @@
 #ARG STORE_UUID=False
 FROM centos:7 as nginx-installer
 
-LABEL maintainer="F5 Solution Engineer"
+LABEL maintainer="NGINX Controller Engineering"
 
 # NGXIN Plus release e.g 26
 ARG NGINX_PLUS_VERSION=26
 
+COPY nginx-plus-api.conf /etc/nginx/conf.d/
+COPY nginx-plus-api.conf /
 COPY entrypoint.sh /
+# change lab k8s - start
 COPY remove.sh /
+# change lab k8s - end
 
 ENV NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 
@@ -33,8 +37,6 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
   wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nginx-plus-7.4.repo \
   # NGINX Javascript module needed for APIM
   && yum update && yum -y install nginx-plus-${NGINX_PLUS_VERSION}* nginx-plus-module-njs-${NGINX_PLUS_VERSION}*
-
-COPY nginx-plus-api.conf /etc/nginx/conf.d/
 
 FROM nginx-installer as agent-installer
 # Install Controller Agent
