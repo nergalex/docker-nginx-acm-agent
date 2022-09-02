@@ -34,12 +34,11 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
   # NGINX Javascript module needed for APIM
   && yum update && yum -y install nginx-plus-${NGINX_PLUS_VERSION}* nginx-plus-module-njs-${NGINX_PLUS_VERSION}*
 
-# NMS repo
+# Install dev portal
 RUN wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
     && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
-    && rpmkeys --import /tmp/nginx_signing.key
-# Install dev portal
-RUN yum -y install nginx-devportal nginx-devportal-ui
+    && rpmkeys --import /tmp/nginx_signing.key \
+    && yum -y install nginx-devportal nginx-devportal-ui
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-devportal.log
 # Install DB
