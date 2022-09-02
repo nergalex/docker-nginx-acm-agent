@@ -39,7 +39,7 @@ RUN sudo wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
     && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
     && rpmkeys --import /tmp/nginx_signing.key
 # Install dev portal
-RUN sudo yum -y install nginx-devportal nginx-devportal-ui
+RUN yum -y install nginx-devportal nginx-devportal-ui
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-devportal.log
 # Install DB
