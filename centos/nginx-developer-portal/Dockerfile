@@ -7,9 +7,7 @@ LABEL maintainer="F5 SE"
 ARG NGINX_PLUS_VERSION=26
 
 COPY entrypoint.sh /
-# change lab k8s - start
 COPY remove.sh /
-# change lab k8s - end
 
 ENV NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 
@@ -36,13 +34,23 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
   # NGINX Javascript module needed for APIM
   && yum update && yum -y install nginx-plus-${NGINX_PLUS_VERSION}* nginx-plus-module-njs-${NGINX_PLUS_VERSION}*
 
+# NMS repo
+RUN sudo wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
+    && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
+    sudo rpmkeys --import /tmp/nginx_signing.key
+# Install dev portal
+RUN sudo yum -y install nginx-devportal nginx-devportal-ui
+# Forward request logs to Docker log collector
+RUN ln -sf /proc/1/fd/1 /var/log/nginx-devportal.log
+# Install DB
+RUN echo 'DB_TYPE="sqlite"' | sudo tee -a /etc/nginx-devportal/devportal.conf \
+  && echo 'DB_PATH="/var/lib/nginx-devportal"' | sudo tee -a /etc/nginx-devportal/devportal.conf
+
 FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
 ARG CONTROLLER_IP
-#ARG API_KEY
-#ENV ENV_CONTROLLER_API_KEY=$API_KEY
-#ARG STORE_UUID
+
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
@@ -55,31 +63,16 @@ RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
   && gpg --batch --delete-keys $NGINX_GPGKEY
 
 FROM cleaner as runner
-## e.g '1234567890'
-#ARG API_KEY
-#ENV ENV_CONTROLLER_API_KEY=$API_KEY
 
-# e.g https://<fqdn>/install/controller-agent
 ARG CONTROLLER_HOST
 ENV ENV_CONTROLLER_HOST=$CONTROLLER_HOST
 
-# e.g True or False
-#ARG STORE_UUID
-#ENV ENV_CONTROLLER_STORE_UUID=$STORE_UUID
-
-# e.g Instance location already defined in Controller
-#ARG LOCATION
-#ENV ENV_CONTROLLER_LOCATION=$LOCATION
-
-# e.g Instance group already defined in Controller
 ARG INSTANCE_GROUP
 ENV ENV_CONTROLLER_INSTANCE_GROUP=$INSTANCE_GROUP
 
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
   && ln -sf /proc/1/fd/2 /var/log/nginx/error.log
-
-COPY custom_log_format.json /etc/nginx/
 
 EXPOSE 80
 
