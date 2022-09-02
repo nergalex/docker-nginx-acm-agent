@@ -116,4 +116,3 @@ wait_term()
 wait_term
 
 echo "acm-agent process has stopped, exiting."
-
