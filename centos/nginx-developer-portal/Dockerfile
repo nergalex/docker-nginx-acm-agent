@@ -67,17 +67,12 @@ RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
 
 FROM cleaner as runner
 
-ARG CONTROLLER_HOST
-ENV ENV_CONTROLLER_HOST=$CONTROLLER_HOST
-
-ARG INSTANCE_GROUP
-ENV ENV_CONTROLLER_INSTANCE_GROUP=$INSTANCE_GROUP
-
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
   && ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 
 EXPOSE 80
+EXPOSE 443
 
 STOPSIGNAL SIGTERM
 
