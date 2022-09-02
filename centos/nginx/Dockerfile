@@ -6,8 +6,6 @@ LABEL maintainer="NGINX Controller Engineering"
 # NGXIN Plus release e.g 26
 ARG NGINX_PLUS_VERSION=26
 
-COPY nginx-plus-api.conf /etc/nginx/conf.d/
-COPY nginx-plus-api.conf /
 COPY entrypoint.sh /
 # change lab k8s - start
 COPY remove.sh /
