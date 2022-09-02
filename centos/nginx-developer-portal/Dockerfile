@@ -37,7 +37,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 # NMS repo
 RUN sudo wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
     && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
-    sudo rpmkeys --import /tmp/nginx_signing.key
+    && rpmkeys --import /tmp/nginx_signing.key
 # Install dev portal
 RUN sudo yum -y install nginx-devportal nginx-devportal-ui
 # Forward request logs to Docker log collector
