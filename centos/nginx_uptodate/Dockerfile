@@ -7,7 +7,9 @@ LABEL maintainer="F5 SE"
 ARG NGINX_PLUS_VERSION=26
 
 COPY entrypoint.sh /
+# change lab k8s - start
 COPY remove.sh /
+# change lab k8s - end
 
 ENV NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
 
@@ -38,12 +40,13 @@ FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
 ARG CONTROLLER_IP
-ARG INSTANCE_GROUP
-
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
+#ARG STORE_UUID
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
-  && sh ./install.sh -g ${INSTANCE_GROUP}
+  && sh ./install.sh
 
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
@@ -52,6 +55,25 @@ RUN rm /etc/yum.repos.d/nginx-plus-7.4.repo \
   && gpg --batch --delete-keys $NGINX_GPGKEY
 
 FROM cleaner as runner
+## e.g '1234567890'
+#ARG API_KEY
+#ENV ENV_CONTROLLER_API_KEY=$API_KEY
+
+# e.g https://<fqdn>/install/controller-agent
+ARG CONTROLLER_HOST
+ENV ENV_CONTROLLER_HOST=$CONTROLLER_HOST
+
+# e.g True or False
+#ARG STORE_UUID
+#ENV ENV_CONTROLLER_STORE_UUID=$STORE_UUID
+
+# e.g Instance location already defined in Controller
+#ARG LOCATION
+#ENV ENV_CONTROLLER_LOCATION=$LOCATION
+
+# e.g Instance group already defined in Controller
+ARG INSTANCE_GROUP
+ENV ENV_CONTROLLER_INSTANCE_GROUP=$INSTANCE_GROUP
 
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
