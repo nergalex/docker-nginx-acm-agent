@@ -57,9 +57,8 @@ FROM cleaner as runner
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
   && ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 
-COPY custom_log_format.json /etc/nginx/
-
 EXPOSE 80
+EXPOSE 443
 
 STOPSIGNAL SIGTERM
 
