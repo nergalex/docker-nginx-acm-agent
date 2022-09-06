@@ -39,7 +39,7 @@ wait_workers
 
 # Launch nginx-devportal
 echo "starting nginx-devportal ..."
-/usr/bin/nginx-devportal > /dev/null 2>&1 < /dev/null &
+/usr/bin/nginx-devportal server > /dev/null 2>&1 < /dev/null &
 devportal_pid=$!
 if [ $? != 0 ]; then
     echo "couldn't start the devportal, please check ${devportal_log_file}"
