@@ -2,7 +2,7 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.09.05.01 ------"
+echo "------ version 2022.09.02.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
@@ -40,7 +40,9 @@ wait_workers
 # Launch nginx-devportal
 echo "starting nginx-devportal ..."
 /usr/bin/nginx-devportal > /dev/null 2>&1 < /dev/null &
+
 devportal_pid=$!
+
 if [ $? != 0 ]; then
     echo "couldn't start the devportal, please check ${devportal_log_file}"
     exit 1
@@ -66,13 +68,23 @@ if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
     echo " ---> using controller api url = ${controller_host}" && \
     sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: $controller_host@' \
 	${agent_conf_file}"
+    sh -c "sed -i.old -e 's@^nginx_fqdn=\s.*@  nginx_fqdn=$controller_host@' \
+	./install.sh"
+
+    test -n "${instance_group}" && \
+    echo " ---> using instance group = ${instance_group}" && \
+    sh ./install.sh -g ${instance_group}
 
     test -f "${agent_conf_file}" && \
     chmod 644 ${agent_conf_file} && \
     chown nginx ${agent_conf_file} > /dev/null 2>&1
+
+    test -f "${nginx_status_conf}" && \
+    chmod 644 ${nginx_status_conf} && \
+    chown nginx ${nginx_status_conf} > /dev/null 2>&1
 fi
 
-echo "starting nginx-agent ..."
+echo "starting controller-agent ..."
 /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
 
 agent_pid=$!
@@ -104,5 +116,3 @@ wait_term()
 wait_term
 
 echo "acm-agent process has stopped, exiting."
-
-

@@ -53,12 +53,11 @@ FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
 ARG CONTROLLER_IP
-ARG INSTANCE_GROUP
 
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
-  && sh ./install.sh -g ${INSTANCE_GROUP}
+  && sh ./install.sh
 
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data

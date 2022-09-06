@@ -36,6 +36,7 @@ wait_workers()
 
 wait_workers
 
+# Launch nginx-agent
 test -n "${ENV_CONTROLLER_HOST}" && \
     controller_host=${ENV_CONTROLLER_HOST}
 
@@ -93,6 +94,5 @@ wait_term()
 wait_term
 
 echo "acm-agent process has stopped, exiting."
-
 
 
