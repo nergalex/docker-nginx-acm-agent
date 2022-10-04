@@ -1,14 +1,15 @@
 #!/bin/sh
 #
-# This script launches nginx, nginx devportal and nginx agent.
+# This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.10.04.01 ------"
+echo "------ version 2022.09.06.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
 agent_log_file="/var/log/nginx-agent/agent.log"
-devportal_conf_file="/etc/nginx-devportal/devportal.conf"
 devportal_log_file="/var/log/nginx-devportal.log"
+nginx_status_conf="/etc/nginx/conf.d/stub_status.conf"
+controller_host=""
 
 handle_term()
 {
@@ -35,52 +36,6 @@ wait_workers()
 }
 
 wait_workers
-
-# Configure nginx-devportal
-test -n "${ENV_DB_NAME}" && \
-    db_name=${ENV_DB_NAME}
-test -n "${ENV_DB_HOST}" && \
-    db_host=${ENV_DB_HOST}
-test -n "${ENV_DB_PORT}" && \
-    db_port=${ENV_DB_PORT}
-test -n "${ENV_DB_USER}" && \
-    db_user=${ENV_DB_USER}
-test -n "${ENV_DB_PASSWORD}" && \
-    db_password=${ENV_DB_PASSWORD}
-
-if [ -n "${db_name}" -o -n "${db_host}" -o -n "${db_port}" -o -n "${db_user}" -o -n "${db_password}" ]; then
-    echo "updating ${devportal_conf_file} ..."
-
-    # db_name
-    test -n "${db_name}" && \
-    echo " ---> using db_name = ${db_name}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_NAME=.*@DB_NAME=\"${db_name}\"@' \
-	${devportal_conf_file}"
-
-    # db_host
-    test -n "${db_host}" && \
-    echo " ---> using db_host = ${db_host}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_HOST=.*@DB_HOST=\"${db_host}\"@' \
-	${devportal_conf_file}"
-
-    # db_port
-    test -n "${db_port}" && \
-    echo " ---> using db_port = ${db_port}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_PORT=.*@DB_PORT=\"${db_port}\"@' \
-	${devportal_conf_file}"
-
-    # db_user
-    test -n "${db_user}" && \
-    echo " ---> using db_user = ${db_user}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_USER=.*@DB_USER=\"${db_user}\"@' \
-	${devportal_conf_file}"
-
-    # db_password
-    test -n "${db_password}" && \
-    echo " ---> using db_password = ${db_password}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_PASSWORD=.*@DB_PASSWORD=\"${db_password}\"@' \
-	${devportal_conf_file}"
-fi
 
 # Launch nginx-devportal
 echo "starting nginx-devportal ..."
