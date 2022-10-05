@@ -80,6 +80,11 @@ if [ -n "${db_name}" -o -n "${db_host}" -o -n "${db_port}" -o -n "${db_user}" -o
     echo " ---> using db_password = ${db_password}" && \
     sh -c "sed -i.old -e 's@^\#\sDB_PASSWORD=.*@DB_PASSWORD=\"${db_password}\"@' \
 	${devportal_conf_file}"
+
+    # db_type
+    echo " ---> using db_type = psql" && \
+    sh -c "sed -i.old -e 's@^DB_TYPE=.*@DB_TYPE=\"psql\"@' \
+	${devportal_conf_file}"
 fi
 
 # Launch nginx-devportal
