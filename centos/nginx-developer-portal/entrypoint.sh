@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This script launches nginx, nginx devportal and nginx agent.
 #
@@ -70,9 +70,14 @@ if [ -n "${db_name}" -o -n "${db_host}" -o -n "${db_port}" -o -n "${db_user}" -o
 	${devportal_conf_file}"
 
     # db_user
-    test -n "${db_user}" && \
+    # Azure PaaS DB: the Username should be in <username@hostname> format.
+    db_email=( $(echo ${db_user} | tr "@" "\n") )
+    db_email_user=${db_email[0]}
+    db_email_host=${db_email[1]}
+    test -n "${db_email_user}" && \
+    test -n "${db_email_host}" && \
     echo " ---> using db_user = ${db_user}" && \
-    sh -c "sed -i.old -e 's@^\#\sDB_USER=.*@DB_USER=\"${db_user}\"@' \
+    sh -c "sed -i.old -e 's@^\#\sDB_USER=.*@DB_USER=\"${db_email_user}\@${db_email_host}\"@' \
 	${devportal_conf_file}"
 
     # db_password
