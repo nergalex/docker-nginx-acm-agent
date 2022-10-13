@@ -152,7 +152,7 @@ wait_term()
     export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
     export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
     echo "waiting for NGINX Instance Manager (NIM) to be seen as Offline..."
-    sleep 55
+    sleep 45
     echo "starting UNREGISTER instance from NIM..."
     sh remove.sh
     echo "UNREGISTER done"
