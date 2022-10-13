@@ -44,7 +44,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
   set -ex \
   && yum -y install nginx-devportal nginx-devportal-ui
 # Forward request logs to Docker log collector
-# RUN ln -sf /proc/1/fd/1 /var/log/nginx-devportal.log
+RUN ln -sf /proc/1/fd/1 /var/log/nginx-devportal.log
 # Install DB
 RUN echo 'DB_TYPE="sqlite"' | tee -a /etc/nginx-devportal/devportal.conf \
   && echo 'DB_PATH="/var/lib/nginx-devportal"' | tee -a /etc/nginx-devportal/devportal.conf
