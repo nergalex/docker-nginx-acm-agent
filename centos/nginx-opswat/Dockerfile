@@ -6,6 +6,7 @@ LABEL maintainer="F5 SE"
 # NGXIN Plus release e.g 26
 ARG NGINX_PLUS_VERSION=26
 
+COPY nginx-module-ometascan.rpm /
 COPY entrypoint.sh /
 COPY remove.sh /
 
@@ -37,9 +38,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 FROM nginx-installer as opswat-installer
 # Install NGINX OPSWAT dynamic module
 
-RUN --mount=type=secret,id=nginx-opswat-module,dst=/nginx-module-ometascan.rpm,mode=0644 \
-    rpm -i /nginx-module-ometascan.rpm \
-
+RUN rpm -i /nginx-module-ometascan.rpm
 
 FROM opswat-installer as agent-installer
 # Install Controller Agent
