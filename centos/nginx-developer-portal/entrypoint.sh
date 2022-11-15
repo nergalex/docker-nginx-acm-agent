@@ -142,10 +142,12 @@ fi
 wait_term()
 {
     wait ${agent_pid}
-    trap - TERM
+    trap '' EXIT INT TERM
     kill -QUIT "${nginx_pid}" 2>/dev/null
     echo "waiting for nginx to stop..."
     wait ${nginx_pid}
+    kill -TERM "${agent_pid}" 2>/dev/null
+    echo "terminating nginx-agent..."
     # unregister - start
     export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
     export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
@@ -161,6 +163,6 @@ wait_term()
 
 wait_term
 
-echo "acm-agent process has stopped, exiting."
+echo "nginx-agent process has stopped, exiting."
 
 
