@@ -34,7 +34,6 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
                         apt-utils\
                         apt-transport-https\
                         distro-info-data\
-                        libmpdec2\
     && \
     NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62; \
     found=''; \
@@ -79,14 +78,11 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
                         gettext-base \
     && apt-get remove --purge -y lsb-release \
     && apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/nginx-plus.list \
-    && rm -rf /etc/apt/apt.conf.d/90nginx /etc/ssl/nginx \
-# Forward request logs to Docker log collector
-    && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+    && rm -rf /etc/apt/apt.conf.d/90nginx /etc/ssl/nginx
 
 FROM nginx-installer as opswat-installer
 # Install NGINX OPSWAT dynamic module
-
+COPY nginx-module-ometascan.deb /
 RUN rpm -i /nginx-module-ometascan.deb
 
 FROM opswat-installer as agent-installer
@@ -100,7 +96,6 @@ RUN curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
 RUN apt-get autoremove --purge -y \
-      curl \
       gnupg \
       apt-transport-https \
       lsb-release \
@@ -110,7 +105,10 @@ RUN apt-get autoremove --purge -y \
 FROM cleaner as runner
 # Forward request logs to Docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log
+  && ln -sf /dev/stderr /var/log/nginx/error.log \
+  && ln -sf /dev/stdout /var/log/nginx-agent/agent.log
+COPY entrypoint.sh /
+COPY remove.sh /
 
 EXPOSE 80
 
