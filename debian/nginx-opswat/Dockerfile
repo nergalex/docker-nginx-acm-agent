@@ -83,7 +83,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
 FROM nginx-installer as opswat-installer
 # Install NGINX OPSWAT dynamic module
 COPY nginx-module-ometascan.deb /
-RUN rpm -i /nginx-module-ometascan.deb
+RUN dpkg -i /nginx-module-ometascan.deb
 
 FROM opswat-installer as agent-installer
 # Install Controller Agent
