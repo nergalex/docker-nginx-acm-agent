@@ -2,12 +2,11 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.06.16.01 ------"
+echo "------ version 2022.11.04.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
 agent_log_file="/var/log/nginx-agent/agent.log"
-nginx_status_conf="/etc/nginx/conf.d/stub_status.conf"
 controller_host=""
 
 handle_term()
@@ -37,6 +36,7 @@ wait_workers()
 
 wait_workers
 
+# Launch nginx-agent
 test -n "${ENV_CONTROLLER_HOST}" && \
     controller_host=${ENV_CONTROLLER_HOST}
 
@@ -56,23 +56,13 @@ if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
     echo " ---> using controller api url = ${controller_host}" && \
     sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: $controller_host@' \
 	${agent_conf_file}"
-    sh -c "sed -i.old -e 's@^nginx_fqdn=\s.*@  nginx_fqdn=$controller_host@' \
-	./install.sh"
-
-    test -n "${instance_group}" && \
-    echo " ---> using instance group = ${instance_group}" && \
-    sh ./install.sh -g ${instance_group}
 
     test -f "${agent_conf_file}" && \
     chmod 644 ${agent_conf_file} && \
     chown nginx ${agent_conf_file} > /dev/null 2>&1
-
-    test -f "${nginx_status_conf}" && \
-    chmod 644 ${nginx_status_conf} && \
-    chown nginx ${nginx_status_conf} > /dev/null 2>&1
 fi
 
-echo "starting controller-agent ..."
+echo "starting nginx-agent ..."
 /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
 
 agent_pid=$!
@@ -85,10 +75,12 @@ fi
 wait_term()
 {
     wait ${agent_pid}
-    trap - TERM
+    trap '' EXIT INT TERM
     kill -QUIT "${nginx_pid}" 2>/dev/null
     echo "waiting for nginx to stop..."
     wait ${nginx_pid}
+    kill -TERM "${agent_pid}" 2>/dev/null
+    echo "terminating nginx-agent..."
     # unregister - start
     echo "UNREGISTER instance from ACM"
     export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
@@ -103,5 +95,4 @@ wait_term()
 
 wait_term
 
-echo "acm-agent process has stopped, exiting."
-
+echo "nginx-agent process has stopped, exiting."
