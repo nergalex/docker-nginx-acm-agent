@@ -22,7 +22,7 @@ trap 'handle_term' TERM
 
 # Launch nginx
 echo "starting nginx ..."
-nginx-debug -g "daemon off;" &
+nginx -g "daemon off;" &
 
 nginx_pid=$!
 
