@@ -44,10 +44,10 @@ ARG INSTANCE_GROUP
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
-  && sh ./install.sh -g ${INSTANCE_GROUP}
+  && sh ./install.sh --instance-group ${INSTANCE_GROUP}
 
 # Install NGINX Plus Metrics Module
-COPY nginx-agent_advanced_metrics.conf
+COPY nginx-agent_advanced_metrics.conf /
 RUN wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
   && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
   && rpmkeys --import /tmp/nginx_signing.key \

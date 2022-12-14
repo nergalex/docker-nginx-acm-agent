@@ -43,7 +43,7 @@ test -n "${ENV_CONTROLLER_HOST}" && \
 test -n "${ENV_CONTROLLER_INSTANCE_GROUP}" && \
     instance_group=${ENV_CONTROLLER_INSTANCE_GROUP}
 
-if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
+if [ -n "${controller_host}" ]; then
     echo "updating ${agent_conf_file} ..."
 
     if [ ! -f "${agent_conf_file}" ]; then
@@ -62,8 +62,13 @@ if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
     chown nginx ${agent_conf_file} > /dev/null 2>&1
 fi
 
-echo "starting nginx-agent ..."
-/usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
+if [ -n "${instance_group}" ]; then
+  echo "starting nginx-agent with instance group ${instance_group}..."
+  /usr/bin/nginx-agent --instance-group ${instance_group} > /dev/null 2>&1 < /dev/null &
+else
+  echo "starting nginx-agent..."
+  /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
+fi
 
 agent_pid=$!
 
