@@ -3,8 +3,8 @@ FROM centos:7 as nginx-installer
 
 LABEL maintainer="F5 SE"
 
-# NGXIN Plus release e.g 26
-ARG NGINX_PLUS_VERSION=26
+# NGXIN Plus release
+ARG NGINX_PLUS_VERSION=28
 
 COPY entrypoint.sh /
 COPY remove.sh /
@@ -17,7 +17,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
   set -ex \
   && yum -y update && yum -y upgrade \
   && yum -y install epel-release \
-  && yum -y install wget ca-certificates epel-release curl sudo vim procps gnupg binutils net-tools jq \
+  && yum -y install wget ca-certificates epel-release curl sudo vim procps gnupg binutils net-tools jq tcpdump \
   && \
   found=''; \
   for server in \
@@ -40,10 +40,17 @@ ARG CONTROLLER_HOST
 ARG CONTROLLER_IP
 ARG INSTANCE_GROUP
 
+# Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
   curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh -g ${INSTANCE_GROUP}
+
+# Install NGINX Plus Metrics Module
+RUN wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
+  && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
+  && rpmkeys --import /tmp/nginx_signing.key \
+  && yum install nginx-plus-module-metrics
 
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data
