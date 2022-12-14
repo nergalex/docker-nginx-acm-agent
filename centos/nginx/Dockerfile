@@ -51,7 +51,7 @@ RUN --mount=type=secret,id=nms-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
   wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
   && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
   && rpmkeys --import /tmp/nginx_signing.key \
-  && yum install nginx-plus-module-metrics \
+  && yum install -y nginx-plus-module-metrics \
   && cat nginx-agent_advanced_metrics.conf >> /etc/nginx-agent/nginx-agent.conf \
   && rm nginx-agent_advanced_metrics.conf
 
