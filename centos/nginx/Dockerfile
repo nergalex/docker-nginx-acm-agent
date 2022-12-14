@@ -41,14 +41,14 @@ ARG CONTROLLER_IP
 ARG INSTANCE_GROUP
 
 # Install NGINX agent
-RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
-    --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
+RUN curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh --instance-group ${INSTANCE_GROUP}
 
 # Install NGINX Plus Metrics Module
 COPY nginx-agent_advanced_metrics.conf /
-RUN wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
+RUN --mount=type=secret,id=nms-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
+  --mount=type=secret,id=nms-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
+  wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/nms.repo \
   && curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key \
   && rpmkeys --import /tmp/nginx_signing.key \
   && yum install nginx-plus-module-metrics \
