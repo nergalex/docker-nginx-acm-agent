@@ -70,7 +70,7 @@ fi
 
 if [ -n "${instance_group}" ]; then
   echo "starting nginx-agent with instance group ${instance_group}..."
-  /usr/bin/nginx-agent --instance-group ${instance_group} > /dev/null 2>&1 < /dev/null &
+  /usr/bin/nginx-agent --instance-group ${instance_group} --config-dirs "/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms:/etc/app_protect" > /dev/null 2>&1 < /dev/null &
 else
   echo "starting nginx-agent..."
   /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
