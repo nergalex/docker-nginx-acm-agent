@@ -16,10 +16,6 @@ handle_term()
     kill -TERM "${agent_pid}" 2>/dev/null
     echo "stopping nginx ..."
     kill -TERM "${nginx_pid}" 2>/dev/null
-    echo "stopping bd-socket-plugin"
-    kill -TERM "${bd_socket_pid}" 2>/dev/null
-    echo "stopping bd-agent"
-    kill -TERM "${bd_agent_pid}" 2>/dev/null
 }
 
 trap 'handle_term' TERM
