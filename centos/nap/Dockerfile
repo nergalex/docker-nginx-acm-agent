@@ -64,7 +64,7 @@ RUN --mount=type=secret,id=nms-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
   && cat nginx-agent_advanced_metrics.conf >> /etc/nginx-agent/nginx-agent.conf \
   && rm nginx-agent_advanced_metrics.conf
 
-# Enable NGINX App Protect WAF Status Reporting
+# Enable NGINX App Protect WAF Status Reporting -------------------------------------------------- NO NAP
 #COPY nginx-agent-app_protect_addon.conf /
 #RUN cat nginx-agent-app_protect_addon.conf >> /etc/nginx-agent/nginx-agent.conf \
 #  && rm nginx-agent-app_protect_addon.conf
