@@ -16,9 +16,16 @@ handle_term()
     kill -TERM "${agent_pid}" 2>/dev/null
     echo "stopping nginx ..."
     kill -TERM "${nginx_pid}" 2>/dev/null
+    echo "stopping nginx app protect..."
+    kill -TERM "${bd_socket_pid}" 2>/dev/null
 }
 
 trap 'handle_term' TERM
+
+# Launch NAP
+echo "starting nginx app protect ..."
+/bin/su -s /bin/sh -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &" nginx
+bd_socket_pid=$(pgrep bd-socket)
 
 # Launch nginx
 echo "starting nginx ..."
@@ -70,14 +77,11 @@ else
 fi
 
 agent_pid=$!
-echo "agent_pid:${agent_pid}"
 
 if [ $? != 0 ]; then
     echo "couldn't start the agent, please check ${agent_log_file}"
     exit 1
 fi
-
-sleep 3600
 
 wait_term()
 {
