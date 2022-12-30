@@ -77,6 +77,8 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+sleep 3600
+
 wait_term()
 {
     wait ${agent_pid}
