@@ -37,12 +37,6 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 # Add NGINX App-protect repo to Yum
 RUN wget -P /etc/yum.repos.d https://cs.nginx.com/static/files/app-protect-7.repo
 
-# Install NGINX App Protect WAF
-RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
-    --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    yum -y install app-protect app-protect-attack-signatures app-protect-threat-campaigns
-COPY custom_log_format.json /etc/nginx/
-
 FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
