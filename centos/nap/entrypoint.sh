@@ -24,12 +24,6 @@ handle_term()
 
 trap 'handle_term' TERM
 
-# Launch NAP
-/bin/su -s /bin/bash -c '/opt/app_protect/bin/bd_agent &' nginx
-bd_agent_pid=$(pgrep bd_agent)
-/bin/su -s /bin/bash -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 > /var/log/app_protect/bd-socket-plugin.log &" nginx
-bd_socket_pid=$(pgrep bd-socket)
-
 # Launch nginx
 echo "starting nginx ..."
 nginx -g "daemon off;" &
