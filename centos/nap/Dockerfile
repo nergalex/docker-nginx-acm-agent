@@ -80,6 +80,7 @@ FROM cleaner as runner
 
 # Forward request logs to Docker log collector
 RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
+  && ln -sf /proc/1/fd/2 /var/log/nginx/access.log \
   && ln -sf /proc/1/fd/2 /var/log/nginx/error.log
 
 EXPOSE 80
