@@ -4,7 +4,7 @@ FROM centos:7 as nginx-installer
 LABEL maintainer="F5 SE"
 
 # NGXIN Plus release
-ARG NGINX_PLUS_VERSION=27
+ARG NGINX_PLUS_VERSION=28
 
 COPY entrypoint.sh /
 COPY remove.sh /
