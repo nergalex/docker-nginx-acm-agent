@@ -52,7 +52,7 @@ RUN mkdir /nginx-agent-package \
     && cd /nginx-agent-package \
     && mv /nginx-agent.tar.gz . \
     && tar xvfz nginx-agent.tar.gz \
-    && yum localinstall rpm/nginx-agent-2.21.0.el7.ngx.x86_64.rpm
+    && yum localinstall -y rpm/nginx-agent-2.21.0.el7.ngx.x86_64.rpm
 
 # Install NGINX Plus Metrics Module
 COPY nginx-agent_advanced_metrics.conf /
