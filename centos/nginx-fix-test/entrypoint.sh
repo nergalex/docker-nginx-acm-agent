@@ -2,7 +2,7 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.09.05.01 ------"
+echo "------ version 2023.01.12.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
@@ -63,8 +63,32 @@ if [ -n "${controller_host}" ]; then
 fi
 
 if [ -n "${instance_group}" ]; then
-  echo "starting nginx-agent with instance group ${instance_group}..."
-  /usr/bin/nginx-agent --instance-group ${instance_group} &
+  echo "starting nginx-agent with instance group ${instance_group} and host ${controller_host} ..."
+  /usr/bin/nginx-agent \
+  --instance-group ${instance_group} \
+  --server-host ${controller_host} \
+  --server-grpcport 443 \
+  --tls-enable \
+  --tls-skip-verify \
+  --log-level info \
+  --log-path /var/log/nginx-agent/ \
+  --nginx-exclude-logs "" \
+  --nginx-socket "unix:/var/run/nginx-agent/nginx.sock" \
+  --dataplane-status-poll-interval 30s \
+  --dataplane-report-interval 24h \
+  --metrics-bulk-size 20 \
+  --metrics-report-interval 1m \
+  --metrics-collection-interval 15s \
+  --metrics-mode aggregated \
+  --config-dirs "/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms" \
+  --advanced-metrics-socket-path /var/run/nginx-agent/advanced-metrics.sock \
+  --advanced-metrics-aggregation-period 1s \
+  --advanced-metrics-publishing-period 3s \
+  --advanced-metrics-table-sizes-limits-staging-table-max-size 1000 \
+  --advanced-metrics-table-sizes-limits-staging-table-threshold 1000 \
+  --advanced-metrics-table-sizes-limits-priority-table-max-size 1000 \
+  --advanced-metrics-table-sizes-limits-priority-table-threshold 1000 \
+  &
 else
   echo "starting nginx-agent..."
   /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
