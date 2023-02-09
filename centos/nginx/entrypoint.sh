@@ -2,7 +2,7 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.09.05.01 ------"
+echo "------ version 2023.02.09.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
@@ -38,10 +38,8 @@ wait_workers
 
 # Launch nginx-agent
 test -n "${ENV_CONTROLLER_HOST}" && \
-    controller_host=${ENV_CONTROLLER_HOST}
-
-test -n "${ENV_CONTROLLER_INSTANCE_GROUP}" && \
-    instance_group=${ENV_CONTROLLER_INSTANCE_GROUP}
+    controller_host=${ENV_CONTROLLER_HOST} && \
+    echo " ---> using NMS host = ${controller_host}"
 
 if [ -n "${controller_host}" ]; then
     echo "updating ${agent_conf_file} ..."
@@ -52,18 +50,19 @@ if [ -n "${controller_host}" ]; then
       { echo "no ${agent_conf_file}.default found! exiting."; exit 1; }
     fi
 
-    test -n "${controller_host}" && \
-    echo " ---> using controller api url = ${controller_host}" && \
-    sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: $controller_host@' \
-	${agent_conf_file}"
+    sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: $controller_host@' ${agent_conf_file}"
 
     test -f "${agent_conf_file}" && \
     chmod 644 ${agent_conf_file} && \
     chown nginx ${agent_conf_file} > /dev/null 2>&1
 fi
 
+test -n "${ENV_CONTROLLER_INSTANCE_GROUP}" && \
+    instance_group=${ENV_CONTROLLER_INSTANCE_GROUP} && \
+    echo " ---> using NMS Instance Group = ${instance_group}"
+
 if [ -n "${instance_group}" ]; then
-  echo "starting nginx-agent with instance group ${instance_group}..."
+  echo "starting nginx-agent with instance group ${instance_group} and host ${controller_host} ..."
   /usr/bin/nginx-agent --instance-group ${instance_group} &
 else
   echo "starting nginx-agent..."
