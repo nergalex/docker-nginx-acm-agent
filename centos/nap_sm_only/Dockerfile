@@ -46,11 +46,10 @@ FROM nginx-installer as agent-installer
 # Install Controller Agent
 ARG CONTROLLER_HOST
 ARG CONTROLLER_IP
-ARG INSTANCE_GROUP
 
 # Install NGINX agent
 RUN curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
-  && sh ./install.sh --instance-group ${INSTANCE_GROUP}
+  && sh ./install.sh
 
 # Install NGINX Plus Metrics Module
 COPY nginx-agent_advanced_metrics.conf /
@@ -85,6 +84,7 @@ RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
 
 EXPOSE 80
 EXPOSE 443
+EXPOSE 514
 
 STOPSIGNAL SIGTERM
 
