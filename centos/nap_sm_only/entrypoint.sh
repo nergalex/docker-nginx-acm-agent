@@ -98,7 +98,8 @@ LOCAL_IPV4=$(ifconfig eth0 | grep -E -o "([0-9]{1,3}[\\.]){3}[0-9]{1,3}"  | head
 --nap-monitoring-processor-buffer-size 50000 \
 --nap-monitoring-syslog-ip "${LOCAL_IPV4}" \
 --nap-monitoring-syslog-port "514" \
-> /dev/null 2>&1 < /dev/null &
+&
+#> /dev/null 2>&1 < /dev/null &
 
 agent_pid=$!
 
