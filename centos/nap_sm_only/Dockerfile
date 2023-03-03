@@ -84,7 +84,7 @@ RUN ln -sf /proc/1/fd/1 /var/log/nginx-agent/agent.log \
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 5144
+EXPOSE 514
 
 STOPSIGNAL SIGTERM
 

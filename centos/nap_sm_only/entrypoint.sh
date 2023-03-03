@@ -66,16 +66,39 @@ if [ -n "${controller_host}" ]; then
     chown nginx ${agent_conf_file} > /dev/null 2>&1
 fi
 
-if [ -n "${instance_group}" ]; then
-  echo "starting nginx-agent with instance group ${instance_group}..."
-  /usr/bin/nginx-agent \
-  # --instance-group ${instance_group} \
-  --config-dirs "/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms:/etc/app_protect" &
-  # > /dev/null 2>&1 < /dev/null &
-else
-  echo "starting nginx-agent..."
-  /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
-fi
+# nginx-agent
+echo "starting nginx-agent..."
+export LOCAL_IPV4
+LOCAL_IPV4=$(ifconfig eth0 | grep -E -o "([0-9]{1,3}[\\.]){3}[0-9]{1,3}"  | head -n 1) \
+&& /usr/bin/nginx-agent \
+--server-host "${controller_host}" \
+--server-grpcport 443 \
+--tls-enable \
+--tls-skip-verify \
+--log-level debug \
+--log-path /var/log/nginx-agent/ \
+--nginx-exclude-logs "" \
+--nginx-socket "unix:/var/run/nginx-agent/nginx.sock" \
+--dataplane-status-poll-interval 30s \
+--dataplane-report-interval 24h \
+--metrics-bulk-size 20 \
+--metrics-report-interval 1m \
+--metrics-collection-interval 15s \
+--metrics-mode aggregated \
+--config-dirs "/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms:/etc/app_protect" \
+--advanced-metrics-socket-path /var/run/nginx-agent/advanced-metrics.sock \
+--advanced-metrics-aggregation-period 1s \
+--advanced-metrics-publishing-period 3s \
+--advanced-metrics-table-sizes-limits-staging-table-max-size 1000 \
+--advanced-metrics-table-sizes-limits-staging-table-threshold 1000 \
+--advanced-metrics-table-sizes-limits-priority-table-max-size 1000 \
+--advanced-metrics-table-sizes-limits-priority-table-threshold 1000 \
+--nginx-app-protect-report-interval 600s \
+--nap-monitoring-collector-buffer-size 50000 \
+--nap-monitoring-processor-buffer-size 50000 \
+--nap-monitoring-syslog-ip "${LOCAL_IPV4}" \
+--nap-monitoring-syslog-port "514" \
+> /dev/null 2>&1 < /dev/null &
 
 agent_pid=$!
 
