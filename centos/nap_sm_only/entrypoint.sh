@@ -2,7 +2,7 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.12.30.01 ------"
+echo "------ version 2023.03.03.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
