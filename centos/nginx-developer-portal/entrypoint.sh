@@ -90,6 +90,11 @@ if [ -n "${db_name}" -o -n "${db_host}" -o -n "${db_port}" -o -n "${db_user}" -o
     echo " ---> using db_type = psql" && \
     sh -c "sed -i.old -e 's@^DB_TYPE=.*@DB_TYPE=\"psql\"@' \
 	${devportal_conf_file}"
+
+    # DB_TLS_MODE
+    echo " ---> using DB_TLS_MODE = require" && \
+    sh -c "sed -i.old -e 's@^\#\sDB_TLS_MODE=.*@DB_TLS_MODE=\"require\"@' \
+	${devportal_conf_file}"
 fi
 
 # Launch nginx-devportal
