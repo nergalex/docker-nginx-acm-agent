@@ -118,7 +118,7 @@ RUN wget https://github.com/nginx/agent/releases/download/v2.25.1/nginx-agent-2.
 
 FROM agent-installer as nginx-config-update
 # implement changes required to run NGINX as an unprivileged user
-RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/conf.d/frontend.conf \
+RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/conf.d/default.conf \
     && sed -i "/user  nginx;/d" ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,.*/var/run/nginx.pid;,pid ${TMP_PATH}/nginx.pid;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,proxy_temp_path.*,proxy_temp_path ${CACHE_PATH}/proxy_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
