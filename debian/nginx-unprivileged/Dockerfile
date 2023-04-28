@@ -126,6 +126,9 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && sed -i "s,fastcgi_temp_path.*,fastcgi_temp_path ${CACHE_PATH}/fastcgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,uwsgi_temp_path.*,uwsgi_temp_path ${CACHE_PATH}/uwsgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,scgi_temp_path.*,scgi_temp_path ${CACHE_PATH}/scgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
+    && touch ${INSTALL_PATH}/var/log/nginx-agent/agent.log \
+    && chown -R nginx:nginx ${INSTALL_PATH}/var/log/nginx-agent \
+    && chmod -R go+rw ${INSTALL_PATH}/var/log/nginx-agent \
     && chown -R nginx:nginx ${INSTALL_PATH}/var/log/nginx \
     && chmod -R go+rw ${INSTALL_PATH}/var/log/nginx \
     && chown -R nginx:nginx /var/run/nginx-agent \
