@@ -101,7 +101,6 @@ RUN wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz \
     && go version
 
 # Install NGINX agent
-COPY nginx-agent.tar.gz /
 RUN wget https://github.com/nginx/agent/releases/download/v2.25.1/nginx-agent-2.25.1.bullseye_amd64.deb \
     mkdir /nginx-agent-package \
     && cd /nginx-agent-package \
