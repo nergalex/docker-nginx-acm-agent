@@ -95,14 +95,15 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
 FROM nginx-installer as agent-installer
 
 # Install GO
-RUN wget https://go.dev/dl/go1.19.5.linux-amd64.tar.gz \
-    && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.5.linux-amd64.tar.gz \
+RUN wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz \
+    && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz \
     && export PATH=$PATH:/usr/local/go/bin \
     && go version
 
 # Install NGINX agent
 COPY nginx-agent.tar.gz /
-RUN mkdir /nginx-agent-package \
+RUN wget https://github.com/nginx/agent/releases/download/v2.25.1/nginx-agent-2.25.1.bullseye_amd64.deb \
+    mkdir /nginx-agent-package \
     && cd /nginx-agent-package \
     && mv /nginx-agent.tar.gz . \
     && tar xvfz nginx-agent.tar.gz \
@@ -128,7 +129,7 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && sed -i "s,client_body_temp_path.*,client_body_temp_path ${CACHE_PATH}/client_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,fastcgi_temp_path.*,fastcgi_temp_path ${CACHE_PATH}/fastcgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && sed -i "s,uwsgi_temp_path.*,uwsgi_temp_path ${CACHE_PATH}/uwsgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
-    && sed -i "s,scgi_temp_path.*,scgi_temp_path ${CACHE_PATH}/scgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf
+    && sed -i "s,scgi_temp_path.*,scgi_temp_path ${CACHE_PATH}/scgi_temp;," ${INSTALL_PATH}/etc/nginx/nginx.conf \
     && chown -R nginx:nginx ${CACHE_PATH} \
     && chmod -R go+rw ${CACHE_PATH} \
     && chown -R nginx:nginx ${INSTALL_PATH} \
@@ -136,7 +137,7 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && chown -R nginx:nginx /var/log/nginx \
     && chmod -R go+rw ${INSTALL_PATH}/var/log/nginx \
     && chown -R nginx:nginx /var/run/nginx-agent \
-    && chmod -R go+w /var/run/nginx-agent \
+    && chmod -R go+w /var/run/nginx-agent
 
 FROM nginx-config-update as cleaner
 # cleanup sensitive nginx-plus data
