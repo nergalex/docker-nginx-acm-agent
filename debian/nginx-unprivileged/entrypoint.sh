@@ -18,7 +18,6 @@ trap 'handle_term' TERM
 
 # Copy initial nginx config to empty volume
 cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/nginx.conf
-cp -r ${install_path}/etc/nginx/conf.d ${nginx_config_path}/conf.d
 
 # Launch nginx
 echo "starting nginx ..."
