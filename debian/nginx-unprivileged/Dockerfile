@@ -123,7 +123,11 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && chown -R nginx:nginx /etc/nginx-agent/ \
     && chmod -R go+w /etc/nginx-agent/ \
     && chown -R nginx:nginx /var/run/nginx-agent \
-    && chmod -R go+w /var/run/nginx-agent
+    && chmod -R go+w /var/run/nginx-agent \
+    && ln -s  ${INSTALL_PATH}/etc/nginx /etc/nginx \
+    && chown nginx:nginx /etc/nginx \
+    && ln -s  ${INSTALL_PATH}/usr/lib/nginx /usr/lib/nginx \
+    && chown nginx:nginx /usr/lib/nginx
 
 FROM nginx-config-update as cleaner
 # cleanup sensitive nginx-plus data
