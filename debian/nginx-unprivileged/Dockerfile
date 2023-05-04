@@ -9,6 +9,7 @@ ARG NJS_VERSION="0.7.10"
 ARG INSTALL_PATH="/nginx"
 ARG TMP_PATH="/nginx-tmp"
 ARG CACHE_PATH="/nginx-cache"
+ARG CONFIG_PATH="/nginx-config"
 
 # Download certificate and key from the customer portal (https://account.f5.com)
 # and copy to the build context
