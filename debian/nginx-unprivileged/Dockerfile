@@ -72,6 +72,11 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     && wget https://raw.githubusercontent.com/nginxinc/nginx-plus-install-tools/main/ngxunprivinst.sh \
     && chmod +x ngxunprivinst.sh \
     \
+# Download nginx-plus-module-metrics package on NMS repo \
+    && repoNmsUrl=https://pkgs.nginx.com/nms/debian/pool/nginx-plus/n/nginx-plus-module-metrics/ \
+    && moduleName=`wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key $repoNmsUrl -O- | fgrep 'nginx-plus-module' | fgrep deb | fgrep -v dbg | cut -d '"' -f2 | fgrep bullseye | fgrep amd64 | fgrep "_$NGINX_PLUS_VERSION"` \
+    && wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key ${repoNmsUrl}${moduleName} \
+    && mv nginx-plus-module-metrics_${NGINX_PLUS_VERSION}* nginx-plus-module-metrics.rpm \
 # Download and Install packages
     && ./ngxunprivinst.sh fetch -c /etc/ssl/nginx/nginx-repo.crt -k /etc/ssl/nginx/nginx-repo.key -v ${NGINX_PLUS_VERSION}-${NGINX_PLUS_VERSION_MINOR} \
     && mv nginx-plus_${NGINX_PLUS_VERSION}* nginx-plus.rpm \
@@ -79,7 +84,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     && mv nginx-plus-module-njs_${NGINX_PLUS_VERSION}%2B${NJS_VERSION}-* nginx-plus-module-njs.rpm \
     && mv nginx-plus-module-subs-filter_${NGINX_PLUS_VERSION}* nginx-plus-module-subs-filter.rpm \
     && mkdir -p $INSTALL_PATH \
-    && ./ngxunprivinst.sh install -y -p $INSTALL_PATH nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm \
+    && ./ngxunprivinst.sh install -y -p $INSTALL_PATH nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
     && chown -R nginx:nginx $INSTALL_PATH \
     && chmod -R g+w $INSTALL_PATH/etc/nginx \
     && sudo mkdir /var/log/nginx \
@@ -97,13 +102,6 @@ RUN wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz \
 # Install NGINX agent
 RUN wget https://github.com/nginx/agent/releases/download/v2.25.1/nginx-agent-2.25.1.bullseye_amd64.deb \
     && sudo dpkg -i nginx-agent-2.25.1.bullseye_amd64.deb
-
-# Install NGINX Plus Metrics Module
-RUN printf "deb https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nms.list \
-  && sudo wget -q -O /etc/apt/apt.conf.d/90pkgs-nginx https://cs.nginx.com/static/files/90pkgs-nginx \
-  && wget -O /tmp/nginx_signing.key https://cs.nginx.com/static/keys/nginx_signing.key \
-  && sudo apt-key add /tmp/nginx_signing.key \
-  && apt install nginx-plus-module-metrics
 
 FROM agent-installer as nginx-config-update
 # implement changes required to run NGINX as an unprivileged user
