@@ -77,6 +77,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     && moduleName=`wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key $repoNmsUrl -O- | fgrep 'nginx-plus-module' | fgrep deb | fgrep -v dbg | cut -d '"' -f2 | fgrep bullseye | fgrep amd64 | fgrep "_$NGINX_PLUS_VERSION"` \
     && wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key ${repoNmsUrl}${moduleName} \
     && mv nginx-plus-module-metrics_${NGINX_PLUS_VERSION}* nginx-plus-module-metrics.rpm \
+    \
 # Download and Install packages
     && ./ngxunprivinst.sh fetch -c /etc/ssl/nginx/nginx-repo.crt -k /etc/ssl/nginx/nginx-repo.key -v ${NGINX_PLUS_VERSION}-${NGINX_PLUS_VERSION_MINOR} \
     && mv nginx-plus_${NGINX_PLUS_VERSION}* nginx-plus.rpm \
