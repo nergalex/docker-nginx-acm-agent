@@ -104,14 +104,17 @@ RUN wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz \
 RUN wget https://github.com/nginx/agent/releases/download/v2.25.1/nginx-agent-2.25.1.bullseye_amd64.deb \
     && sudo dpkg -i nginx-agent-2.25.1.bullseye_amd64.deb
 
-# Install NGINX Plus Metrics Module
-#RUN --mount=type=secret,id=nms-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
-#  --mount=type=secret,id=nms-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-#  printf "deb https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nms.list \
-#  && sudo wget -q -O /etc/apt/apt.conf.d/90pkgs-nginx https://cs.nginx.com/static/files/90pkgs-nginx \
-#  && wget -O /tmp/nginx_signing.key https://cs.nginx.com/static/keys/nginx_signing.key \
-#  && sudo apt-key add /tmp/nginx_signing.key \
-#  && apt install nginx-plus-module-metrics
+ Install NGINX Plus Metrics Module
+RUN --mount=type=secret,id=nms-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
+  --mount=type=secret,id=nms-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
+  mkdir -p /etc/ssl/nginx \
+  && cat nginx-repo.crt > /etc/ssl/nginx/nginx-repo.crt \
+  && cat nginx-repo.key > /etc/ssl/nginx/nginx-repo.key \
+  && printf "deb https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nms.list \
+  && sudo wget -q -O /etc/apt/apt.conf.d/90pkgs-nginx https://cs.nginx.com/static/files/90pkgs-nginx \
+  && wget -O /tmp/nginx_signing.key https://cs.nginx.com/static/keys/nginx_signing.key \
+  && sudo apt-key add /tmp/nginx_signing.key \
+  && apt install nginx-plus-module-metrics
 
 FROM agent-installer as nginx-config-update
 # implement changes required to run NGINX as an unprivileged user
