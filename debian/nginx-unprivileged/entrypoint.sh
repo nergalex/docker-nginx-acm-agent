@@ -52,7 +52,7 @@ chmod 644 ${agent_conf_file} && \
 chown nginx ${agent_conf_file} > /dev/null 2>&1
 
 echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} and host ${ENV_CONTROLLER_HOST} ..."
-/usr/bin/nginx-agent \
+/usr/bin/nginx-agent &
 #  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} \
 #  --server-host ${ENV_CONTROLLER_HOST} \
 #  --server-grpcport 443 \
@@ -69,7 +69,7 @@ echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} 
 #  --metrics-collection-interval 15s \
 #  --metrics-mode aggregated \
 #  --config-dirs "${install_path}/etc/nginx:${install_path}/etc/nginx/modules" \
-  &
+#  &
 
 agent_pid=$!
 
