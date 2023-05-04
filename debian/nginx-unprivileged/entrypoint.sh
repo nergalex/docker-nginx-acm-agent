@@ -21,12 +21,12 @@ trap 'handle_term' TERM
 # Copy initial nginx config to target directory
 mkdir -p ${nginx_config_path}/etc/nginx
 cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/etc/nginx/nginx.conf
-ln -s  ${nginx_config_path}/etc/nginx/nginx.conf ${install_path}/etc/nginx/nginx.conf
+#ln -s  ${nginx_config_path}/etc/nginx/nginx.conf ${install_path}/etc/nginx/nginx.conf
 # ln -s  /nginx/usr/lib/nginx/modules/ ${nginx_config_path}/etc/nginx/modules
 
 # Launch nginx
 echo "starting nginx ..."
-${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${install_path}/etc/nginx/nginx.conf -g "daemon off; load_module modules/ngx_http_js_module.so;" &
+${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${nginx_config_path}/etc/nginx/nginx.conf -g "daemon off; load_module modules/ngx_http_js_module.so;" &
 
 nginx_pid=$!
 
