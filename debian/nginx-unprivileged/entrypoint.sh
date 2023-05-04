@@ -53,22 +53,22 @@ chown nginx ${agent_conf_file} > /dev/null 2>&1
 
 echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} and host ${ENV_CONTROLLER_HOST} ..."
 /usr/bin/nginx-agent \
-  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} \
-  --server-host ${ENV_CONTROLLER_HOST} \
-  --server-grpcport 443 \
-  --tls-enable \
-  --tls-skip-verify \
-  --log-level info \
-  --log-path ${install_path}/var/log/nginx-agent/ \
-  --nginx-exclude-logs "" \
-  --nginx-socket "unix:/var/run/nginx-agent/nginx.sock" \
-  --dataplane-status-poll-interval 30s \
-  --dataplane-report-interval 24h \
-  --metrics-bulk-size 20 \
-  --metrics-report-interval 1m \
-  --metrics-collection-interval 15s \
-  --metrics-mode aggregated \
-  --config-dirs "${install_path}/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms" \
+#  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} \
+#  --server-host ${ENV_CONTROLLER_HOST} \
+#  --server-grpcport 443 \
+#  --tls-enable \
+#  --tls-skip-verify \
+#  --log-level info \
+#  --log-path ${install_path}/var/log/nginx-agent/ \
+#  --nginx-exclude-logs "" \
+#  --nginx-socket "unix:/var/run/nginx-agent/nginx.sock" \
+#  --dataplane-status-poll-interval 30s \
+#  --dataplane-report-interval 24h \
+#  --metrics-bulk-size 20 \
+#  --metrics-report-interval 1m \
+#  --metrics-collection-interval 15s \
+#  --metrics-mode aggregated \
+#  --config-dirs "${install_path}/etc/nginx:${install_path}/etc/nginx/modules" \
   &
 
 agent_pid=$!
