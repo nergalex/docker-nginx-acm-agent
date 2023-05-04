@@ -17,11 +17,11 @@ handle_term()
 trap 'handle_term' TERM
 
 # Copy initial nginx config to empty volume
-cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/nginx.conf
+cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/etc/nginx/nginx.conf
 
 # Launch nginx
 echo "starting nginx ..."
-${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${nginx_config_path}/nginx.conf -g "daemon off; load_module modules/ngx_http_js_module.so;" &
+${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${nginx_config_path}/etc/nginx/nginx.conf -g "daemon off; load_module modules/ngx_http_js_module.so;" &
 
 nginx_pid=$!
 
