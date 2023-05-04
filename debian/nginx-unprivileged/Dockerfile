@@ -132,6 +132,8 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && chmod -R go+rw ${INSTALL_PATH}/var/log/nginx-agent \
     && chown -R nginx:nginx ${INSTALL_PATH}/var/log/nginx \
     && chmod -R go+rw ${INSTALL_PATH}/var/log/nginx \
+    && chown -R nginx:nginx /etc/nginx-agent/ \
+    && chmod -R go+w /etc/nginx-agent/ \
     && chown -R nginx:nginx /var/run/nginx-agent \
     && chmod -R go+w /var/run/nginx-agent
 
