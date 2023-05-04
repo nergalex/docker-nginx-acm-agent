@@ -5,8 +5,8 @@
 echo "------ version 2023.04.28.01 ------"
 
 install_path="/nginx"
-agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
-agent_log_file="${install_path}/var/log/nginx-agent/agent.log"
+# agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
+# agent_log_file="${install_path}/var/log/nginx-agent/agent.log"
 
 handle_term()
 {
@@ -34,24 +34,24 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-echo "updating ${agent_conf_file} ..."
+#echo "updating ${agent_conf_file} ..."
+#
+#if [ ! -f "${agent_conf_file}" ]; then
+#  test -f "${agent_conf_file}.default" && \
+#  cp -p "${agent_conf_file}.default" "${agent_conf_file}" || \
+#  { echo "no ${agent_conf_file}.default found! exiting."; exit 1; }
+#fi
+#
+#test -n "${ENV_CONTROLLER_HOST}" && \
+#echo " ---> using controller api url = ${ENV_CONTROLLER_HOST}" && \
+#sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: ${ENV_CONTROLLER_HOST}@' \
+#${agent_conf_file}"
+#
+#test -f "${agent_conf_file}" && \
+#chmod 644 ${agent_conf_file} && \
+#chown nginx ${agent_conf_file} > /dev/null 2>&1
 
-if [ ! -f "${agent_conf_file}" ]; then
-  test -f "${agent_conf_file}.default" && \
-  cp -p "${agent_conf_file}.default" "${agent_conf_file}" || \
-  { echo "no ${agent_conf_file}.default found! exiting."; exit 1; }
-fi
-
-test -n "${ENV_CONTROLLER_HOST}" && \
-echo " ---> using controller api url = ${ENV_CONTROLLER_HOST}" && \
-sh -c "sed -i.old -e 's@^\s\shost:\s.*@  host: ${ENV_CONTROLLER_HOST}@' \
-${agent_conf_file}"
-
-test -f "${agent_conf_file}" && \
-chmod 644 ${agent_conf_file} && \
-chown nginx ${agent_conf_file} > /dev/null 2>&1
-
-echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} and host ${ENV_CONTROLLER_HOST} ..."
+# echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} and host ${ENV_CONTROLLER_HOST} ..."
 /usr/bin/nginx-agent &
 #  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} \
 #  --server-host ${ENV_CONTROLLER_HOST} \
@@ -74,7 +74,7 @@ echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} 
 agent_pid=$!
 
 if [ $? != 0 ]; then
-    echo "couldn't start the agent, please check ${agent_log_file}"
+    echo "couldn't start the agent, please check nginx-agent logs"
     exit 1
 fi
 
