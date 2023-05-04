@@ -69,13 +69,6 @@ echo "starting nginx-agent with instance group ${ENV_CONTROLLER_INSTANCE_GROUP} 
   --metrics-collection-interval 15s \
   --metrics-mode aggregated \
   --config-dirs "${install_path}/etc/nginx:/usr/local/etc/nginx:/usr/share/nginx/modules:/etc/nms" \
-  --advanced-metrics-socket-path /var/run/nginx-agent/advanced-metrics.sock \
-  --advanced-metrics-aggregation-period 1s \
-  --advanced-metrics-publishing-period 3s \
-  --advanced-metrics-table-sizes-limits-staging-table-max-size 1000 \
-  --advanced-metrics-table-sizes-limits-staging-table-threshold 1000 \
-  --advanced-metrics-table-sizes-limits-priority-table-max-size 1000 \
-  --advanced-metrics-table-sizes-limits-priority-table-threshold 1000 \
   &
 
 agent_pid=$!
