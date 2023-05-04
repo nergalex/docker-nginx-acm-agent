@@ -21,7 +21,7 @@ trap 'handle_term' TERM
 # Copy initial nginx config to target directory
 mkdir -p ${nginx_config_path}/etc/nginx
 cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/etc/nginx/nginx.conf
-chmod g+w ${nginx_config_path}/etc/nginx/nginx.conf
+chmod g+w -R ${nginx_config_path}/etc/nginx
 # ln -s  ${nginx_config_path}/etc/nginx/nginx.conf ${install_path}/etc/nginx/nginx.conf
 # ln -s  /nginx/usr/lib/nginx/modules/ ${nginx_config_path}/etc/nginx/modules
 
