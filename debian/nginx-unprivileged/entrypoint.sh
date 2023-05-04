@@ -2,9 +2,10 @@
 #
 # This script launches nginx and OIDC module.
 #
-echo "------ version 2023.04.28.01 ------"
+echo "------ version 2023.05.04.01 ------"
 
 install_path="/nginx"
+nginx_config_path="/nginx-config"
 # agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
 # agent_log_file="${install_path}/var/log/nginx-agent/agent.log"
 
@@ -16,6 +17,12 @@ handle_term()
 }
 
 trap 'handle_term' TERM
+
+# Copy initial nginx config to target directory
+mkdir -p ${nginx_config_path}/etc/nginx
+cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/etc/nginx/nginx.conf
+ln -s  ${nginx_config_path}/etc/nginx/nginx.conf ${install_path}/etc/nginx/nginx.conf
+# ln -s  /nginx/usr/lib/nginx/modules/ ${nginx_config_path}/etc/nginx/modules
 
 # Launch nginx
 echo "starting nginx ..."
@@ -88,7 +95,7 @@ wait_term()
     kill -TERM "${agent_pid}" 2>/dev/null
     echo "terminating nginx-agent..."
     # unregister - start
-    echo "UNREGISTER instance from ACM"
+    echo "UNREGISTER instance from NMS"
     export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
     export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
     export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
