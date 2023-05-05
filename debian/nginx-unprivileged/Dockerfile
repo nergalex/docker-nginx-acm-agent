@@ -4,6 +4,8 @@ LABEL maintainer="F5 SE"
 
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
 ARG NGINX_PLUS_VERSION=29
+# 2023.05.05: workaround nginx-plus-module-metrics not yet released in version R29
+ARG NGINX_PLUS_MODULE_METRICS_VERSION=28
 ARG NGINX_PLUS_VERSION_MINOR=1
 ARG NJS_VERSION="0.7.12"
 ARG INSTALL_PATH="/nginx"
@@ -75,9 +77,9 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     \
 # Download nginx-plus-module-metrics package on NMS repo \
     && repoNmsUrl=https://pkgs.nginx.com/nms/debian/pool/nginx-plus/n/nginx-plus-module-metrics/ \
-    && moduleName=`wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key $repoNmsUrl -O- | fgrep 'nginx-plus-module' | fgrep deb | fgrep -v dbg | cut -d '"' -f2 | fgrep bullseye | fgrep amd64 | fgrep "_$NGINX_PLUS_VERSION"` \
+    && moduleName=`wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key ${repoNmsUrl} -O- | fgrep 'nginx-plus-module' | fgrep deb | fgrep -v dbg | cut -d '"' -f2 | fgrep bullseye | fgrep amd64 | fgrep "_${NGINX_PLUS_MODULE_METRICS_VERSION}"` \
     && wget --certificate=/etc/ssl/nginx/nginx-repo.crt --private-key=/etc/ssl/nginx/nginx-repo.key ${repoNmsUrl}${moduleName} \
-    && mv nginx-plus-module-metrics_${NGINX_PLUS_VERSION}* nginx-plus-module-metrics.rpm \
+    && mv nginx-plus-module-metrics_${NGINX_PLUS_MODULE_METRICS_VERSION}* nginx-plus-module-metrics.rpm \
     \
 # Download and Install packages
     && ./ngxunprivinst.sh fetch -c /etc/ssl/nginx/nginx-repo.crt -k /etc/ssl/nginx/nginx-repo.key -v ${NGINX_PLUS_VERSION}-${NGINX_PLUS_VERSION_MINOR} \
