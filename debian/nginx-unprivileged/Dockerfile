@@ -3,9 +3,9 @@ FROM debian:bullseye-slim as nginx-installer
 LABEL maintainer="F5 SE"
 
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
-ARG NGINX_PLUS_VERSION=28
+ARG NGINX_PLUS_VERSION=29
 ARG NGINX_PLUS_VERSION_MINOR=1
-ARG NJS_VERSION="0.7.10"
+ARG NJS_VERSION="0.7.12"
 ARG INSTALL_PATH="/nginx"
 ARG TMP_PATH="/nginx-tmp"
 ARG CACHE_PATH="/nginx-cache"
