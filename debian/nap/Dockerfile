@@ -4,7 +4,6 @@ LABEL maintainer="F5 SE"
 
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
 ARG NGINX_PLUS_VERSION=29
-ARG INSTALL_PATH=""
 ARG CONTROLLER_HOST
 ARG INSTANCE_GROUP
 
@@ -79,10 +78,9 @@ RUN apt-get autoremove --purge -y \
 
 FROM cleaner as runner
 # Forward request logs to Docker log collector
-RUN ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx/access.log \
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log \
-  && ln -sf /dev/stderr ${INSTALL_PATH}/var/log/nginx/error.log \
-  && ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx-agent/agent.log
+  && ln -sf /dev/stdout /var/log/nginx-agent/agent.log
 
 COPY entrypoint.sh /
 COPY remove.sh /

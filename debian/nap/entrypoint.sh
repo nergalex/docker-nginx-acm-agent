@@ -2,10 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2023.07.03.2 ------"
-
-install_path="/nginx"
-nginx_config_path="/nginx-config"
+echo "------ version 2023.07.03.3 ------"
 
 handle_term()
 {
@@ -16,16 +13,13 @@ handle_term()
 
 trap 'handle_term' TERM
 
-# Copy initial nginx config to empty volume
-cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/nginx.conf
-
 # Launch nginx app protect WAF
 echo "starting app protect waf ..."
 /usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &
 
 # Launch nginx
 echo "starting nginx ..."
-${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${nginx_config_path}/nginx.conf -g "daemon off;" &
+/usr/sbin/nginx -p /etc/nginx -c /etc/nginx/nginx.conf -g "daemon off;" &
 
 nginx_pid=$!
 
