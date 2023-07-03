@@ -39,7 +39,8 @@ RUN  apt-get update \
                         brotli \
                         wget \
                         git \
-                        libxml2
+                        libxml2 \
+                        iproute2
 
 # Download and add the NGINX signing keys
 RUN wget https://cs.nginx.com/static/keys/nginx_signing.key && apt-key add nginx_signing.key \
