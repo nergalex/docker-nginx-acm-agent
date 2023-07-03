@@ -131,11 +131,6 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && ln -s  ${INSTALL_PATH}/usr/lib/nginx /usr/lib/nginx \
     && chown nginx:nginx /usr/lib/nginx
 
-# Enable NGINX App Protect WAF Status Reporting
-COPY nginx-agent-app_protect_addon.conf /
-RUN cat nginx-agent-app_protect_addon.conf >> /etc/nginx-agent/nginx-agent.conf \
-  && rm nginx-agent-app_protect_addon.conf
-
 FROM nginx-config-update as cleaner
 # cleanup sensitive nginx-plus data
 RUN apt-get autoremove --purge -y \
@@ -146,7 +141,7 @@ RUN apt-get autoremove --purge -y \
   && rm -rf "${tempDir}" \
   && apt-get remove --purge -y lsb-release \
   && apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/nginx-plus.list \
-  && rm -rf /etc/apt/apt.conf.d/90nginx /etc/ssl/nginx
+  && rm -rf /etc/apt/apt.conf.d/90pkgs-nginx /etc/ssl/nginx
 
 FROM cleaner as runner
 # Forward request logs to Docker log collector
