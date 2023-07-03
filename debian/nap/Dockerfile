@@ -49,7 +49,7 @@ RUN printf "deb https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\
 RUN printf "deb https://pkgs.nginx.com/app-protect/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nginx-app-protect.list \
     && printf "deb https://pkgs.nginx.com/app-protect-security-updates/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/app-protect-security-updates.list \
     && printf "deb https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nms.list \
-    && printf "deb https://pkgs.nginx.com/adm/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nms.list
+    && printf "deb https://pkgs.nginx.com/adm/debian `lsb_release -cs` nginx-plus\n" | tee -a /etc/apt/sources.list.d/nms.list
 
 # Download the apt configuration to `/etc/apt/apt.conf.d`:
 RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
@@ -57,11 +57,13 @@ RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 # Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus)
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    apt-get update && apt-get install -y app-protect nginx-plus-module-njs nginx-plus-module-metrics \
+    apt-get update && apt-get install -y app-protect nginx-plus-module-njs nginx-plus-module-metrics
 
 FROM nginx-installer as agent-installer
 # Install NGINX agent
-RUN curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
+RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
+    --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
+  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh --instance-group ${INSTANCE_GROUP}
 
 FROM agent-installer as cleaner
