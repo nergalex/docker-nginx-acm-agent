@@ -53,10 +53,12 @@ RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 # Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus)
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    apt-get update && apt-get install -y nginx-plus-${NGINX_PLUS_VERSION}* nginx-plus-module-njs-${NGINX_PLUS_VERSION}* app-protect
+    apt-get update && apt-get install -y app-protect nginx-plus-module-njs
 
 # Install NGINX Plus Metrics Module
-RUN printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nms.list \
+RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
+    --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
+    printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nms.list \
     && printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://pkgs.nginx.com/adm/debian `lsb_release -cs` nginx-plus\n" | tee -a /etc/apt/sources.list.d/nms.list \
     && wget -q -O /etc/apt/apt.conf.d/90pkgs-nginx https://cs.nginx.com/static/files/90pkgs-nginx \
     && wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null \
@@ -64,7 +66,6 @@ RUN printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https:
     && apt-get install nginx-plus-module-metrics
 
 FROM nginx-installer as agent-installer
-
 # Install NGINX agent
 RUN curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
   && sh ./install.sh --instance-group ${INSTANCE_GROUP}
@@ -93,5 +94,6 @@ COPY remove.sh /
 EXPOSE 80
 EXPOSE 443
 STOPSIGNAL SIGTERM
-USER nginx
 ENTRYPOINT ["bash", "/entrypoint.sh"]
+
+
