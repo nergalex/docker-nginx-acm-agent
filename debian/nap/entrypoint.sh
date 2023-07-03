@@ -2,7 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2023.07.03.3 ------"
+echo "------ version 2023.07.03.4 ------"
 
 handle_term()
 {
@@ -15,7 +15,7 @@ trap 'handle_term' TERM
 
 # Launch nginx app protect WAF
 echo "starting app protect waf ..."
-/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &
+/bin/su -s /bin/sh -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &" nginx
 
 # Launch nginx
 echo "starting nginx ..."
