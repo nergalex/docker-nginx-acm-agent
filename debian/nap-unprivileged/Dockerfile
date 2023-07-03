@@ -15,7 +15,7 @@ ARG CONFIG_PATH="/nginx-config"
 
 # create nginx user/group first, to be consistent throughout docker variants
 RUN addgroup --system nginx || true \
-    && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true \
+    && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true
 
 # Install prerequisite packages
 RUN  apt-get update \
@@ -59,10 +59,7 @@ RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 # Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus):
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    && mkdir -p /etc/ssl/nginx \
-    && cat nginx-repo.crt > /etc/ssl/nginx/nginx-repo.crt \
-    && cat nginx-repo.key > /etc/ssl/nginx/nginx-repo.key \
-    && apt-get update \
+    apt-get update \
     \
 # Temporary directory to store installation files
     && tempDir="$(mktemp -d)" \
