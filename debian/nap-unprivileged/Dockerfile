@@ -82,10 +82,10 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && mv nginx-plus-module-njs_${NGINX_PLUS_VERSION}%2B${NJS_VERSION}-* nginx-plus-module-njs.rpm \
     && mv nginx-plus-module-subs-filter_${NGINX_PLUS_VERSION}* nginx-plus-module-subs-filter.rpm \
     #&& mkdir -p $INSTALL_PATH \
-    && ./ngxunprivinst.sh install -y -p $INSTALL_PATH/ nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
+    && ./ngxunprivinst.sh install -y -p . nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
     #&& chown -R nginx:nginx $INSTALL_PATH \
     && chmod -R g+w $INSTALL_PATH/etc/nginx \
-    && sudo mkdir /var/log/nginx \
+    #&& sudo mkdir /var/log/nginx \
     && sudo touch /var/log/nginx/error.log \
     && sudo chown -R nginx:nginx /var/log/nginx
 
@@ -146,7 +146,7 @@ RUN apt-get autoremove --purge -y \
 FROM cleaner as runner
 # Forward request logs to Docker log collector
 RUN ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log \
+  #&& ln -sf /dev/stderr /var/log/nginx/error.log \
   && ln -sf /dev/stderr ${INSTALL_PATH}/var/log/nginx/error.log \
   && ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx-agent/agent.log
 
