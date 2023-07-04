@@ -86,7 +86,8 @@ COPY entrypoint.sh /
 COPY remove.sh /
 COPY agent-dynamic.conf /etc/nginx-agent/
 COPY nginx-agent.conf /etc/nginx-agent/
-RUN chown nginx:nginx /etc/nginx-agent/*
+RUN chown nginx:nginx /etc/nginx-agent/* \
+    && chmod 777 /etc/nginx-agent/*
 
 EXPOSE 80
 EXPOSE 443
