@@ -8,7 +8,7 @@ ARG NGINX_PLUS_VERSION=29
 ARG NGINX_PLUS_MODULE_METRICS_VERSION=28
 ARG NGINX_PLUS_VERSION_MINOR=1
 ARG NJS_VERSION="0.7.12"
-ARG INSTALL_PATH=""
+ARG INSTALL_PATH="/nginx"
 ARG TMP_PATH="/nginx-tmp"
 ARG CACHE_PATH="/nginx-cache"
 ARG CONFIG_PATH="/nginx-config"
@@ -81,11 +81,11 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && mv nginx-plus-module-brotli_${NGINX_PLUS_VERSION}* nginx-plus-module-brotli.rpm \
     && mv nginx-plus-module-njs_${NGINX_PLUS_VERSION}%2B${NJS_VERSION}-* nginx-plus-module-njs.rpm \
     && mv nginx-plus-module-subs-filter_${NGINX_PLUS_VERSION}* nginx-plus-module-subs-filter.rpm \
-    #&& mkdir -p $INSTALL_PATH \
-    && ./ngxunprivinst.sh install -y -p / nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
-    #&& chown -R nginx:nginx $INSTALL_PATH \
-    #&& chmod -R g+w $INSTALL_PATH/etc/nginx \
-    #&& sudo mkdir /var/log/nginx \
+    && mkdir -p $INSTALL_PATH \
+    && ./ngxunprivinst.sh install -y -p $INSTALL_PATH nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
+    && chown -R nginx:nginx $INSTALL_PATH \
+    && chmod -R g+w $INSTALL_PATH/etc/nginx \
+    && sudo mkdir /var/log/nginx \
     && sudo touch /var/log/nginx/error.log \
     && sudo chown -R nginx:nginx /var/log/nginx
 
@@ -125,11 +125,11 @@ RUN sed -i "s,listen       80;,listen       8080;," ${INSTALL_PATH}/etc/nginx/co
     && chown -R nginx:nginx /etc/nginx-agent/ \
     && chmod -R go+w /etc/nginx-agent/ \
     && chown -R nginx:nginx /var/run/nginx-agent \
-    && chmod -R go+w /var/run/nginx-agent
-    #&& ln -s  ${INSTALL_PATH}/etc/nginx /etc/nginx \
-    #&& chown nginx:nginx /etc/nginx \
-    #&& ln -s  ${INSTALL_PATH}/usr/lib/nginx /usr/lib/nginx \
-    #&& chown nginx:nginx /usr/lib/nginx
+    && chmod -R go+w /var/run/nginx-agent \
+    && ln -s  ${INSTALL_PATH}/etc/nginx /etc/nginx \
+    && chown nginx:nginx /etc/nginx \
+    && ln -s  ${INSTALL_PATH}/usr/lib/nginx /usr/lib/nginx \
+    && chown nginx:nginx /usr/lib/nginx
 
 FROM nginx-config-update as cleaner
 # cleanup sensitive nginx-plus data
@@ -146,7 +146,7 @@ RUN apt-get autoremove --purge -y \
 FROM cleaner as runner
 # Forward request logs to Docker log collector
 RUN ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx/access.log \
-  #&& ln -sf /dev/stderr /var/log/nginx/error.log \
+  && ln -sf /dev/stderr /var/log/nginx/error.log \
   && ln -sf /dev/stderr ${INSTALL_PATH}/var/log/nginx/error.log \
   && ln -sf /dev/stdout ${INSTALL_PATH}/var/log/nginx-agent/agent.log
 
