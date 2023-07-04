@@ -2,10 +2,10 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2023.07.03.2 ------"
+echo "------ version 2023.07.04.1 ------"
 
-install_path="/nginx"
-nginx_config_path="/nginx-config"
+install_path=""
+nginx_config_path="/etc/nginx"
 
 handle_term()
 {
@@ -17,7 +17,7 @@ handle_term()
 trap 'handle_term' TERM
 
 # Copy initial nginx config to empty volume
-cp ${install_path}/etc/nginx/nginx.conf ${nginx_config_path}/nginx.conf
+#cp "${install_path}/etc/nginx/nginx.conf" ${nginx_config_path}/nginx.conf
 
 # Launch nginx app protect WAF
 echo "starting app protect waf ..."
@@ -25,7 +25,7 @@ echo "starting app protect waf ..."
 
 # Launch nginx
 echo "starting nginx ..."
-${install_path}/usr/sbin/nginx -p ${install_path}/etc/nginx -c ${nginx_config_path}/nginx.conf -g "daemon off;" &
+${install_path}/usr/sbin/nginx -p "${install_path}/etc/nginx" -c "${nginx_config_path}/nginx.conf" -g "daemon off;" &
 
 nginx_pid=$!
 
@@ -40,7 +40,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-/usr/bin/nginx-agent --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} --tags CE &
+/usr/bin/nginx-agent --instance-group "${ENV_CONTROLLER_INSTANCE_GROUP}" --tags "CE" &
 
 agent_pid=$!
 
