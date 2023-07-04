@@ -15,7 +15,7 @@ trap 'handle_term' TERM
 
 # Launch nginx app protect WAF
 echo "starting app protect waf ..."
-/bin/su -s /bin/sh -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &" nginx
+/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &
 
 # Launch nginx
 echo "starting nginx ..."
@@ -34,9 +34,9 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-chown nginx:nginx -R /etc/nginx/*
-mkdir -p /etc/nms && chown nginx:nginx -R /etc/nms
-/bin/su -s /bin/sh -c "/usr/bin/nginx-agent  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} &" nginx
+# chown nginx:nginx -R /etc/nginx/*
+# mkdir -p /etc/nms && chown nginx:nginx -R /etc/nms
+/usr/bin/nginx-agent  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} &
 
 agent_pid=$!
 
