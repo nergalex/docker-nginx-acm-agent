@@ -34,7 +34,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-chown nginx:nginx /etc/nginx/nginx.conf
+chown nginx:nginx -R /etc/nginx/*
 /bin/su -s /bin/sh -c "/usr/bin/nginx-agent  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} &" nginx
 
 agent_pid=$!
