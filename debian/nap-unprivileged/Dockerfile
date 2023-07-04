@@ -82,9 +82,9 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && mv nginx-plus-module-njs_${NGINX_PLUS_VERSION}%2B${NJS_VERSION}-* nginx-plus-module-njs.rpm \
     && mv nginx-plus-module-subs-filter_${NGINX_PLUS_VERSION}* nginx-plus-module-subs-filter.rpm \
     #&& mkdir -p $INSTALL_PATH \
-    && ./ngxunprivinst.sh install -y -p . nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
+    && ./ngxunprivinst.sh install -y -p / nginx-plus.rpm nginx-plus-module-brotli.rpm nginx-plus-module-njs.rpm nginx-plus-module-subs-filter.rpm nginx-plus-module-metrics.rpm \
     #&& chown -R nginx:nginx $INSTALL_PATH \
-    && chmod -R g+w $INSTALL_PATH/etc/nginx \
+    #&& chmod -R g+w $INSTALL_PATH/etc/nginx \
     #&& sudo mkdir /var/log/nginx \
     && sudo touch /var/log/nginx/error.log \
     && sudo chown -R nginx:nginx /var/log/nginx
