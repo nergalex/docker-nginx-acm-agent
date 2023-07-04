@@ -35,6 +35,7 @@ wait_workers
 
 # Launch nginx-agent
 chown nginx:nginx -R /etc/nginx/*
+mkdir -p /etc/nms && chown nginx:nginx -R /etc/nms
 /bin/su -s /bin/sh -c "/usr/bin/nginx-agent  --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} &" nginx
 
 agent_pid=$!
