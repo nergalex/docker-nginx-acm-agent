@@ -40,7 +40,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-/usr/bin/nginx-agent &
+/usr/bin/nginx-agent --instance-group ${ENV_CONTROLLER_INSTANCE_GROUP} --tags CE &
 
 agent_pid=$!
 
