@@ -126,6 +126,7 @@ FROM cleaner as runner
 # Forward request logs to Docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log \
+  && ln -sf /dev/stdout /var/log/app_protect/bd-socket-plugin.log \
   && ln -sf /dev/stdout /var/log/nginx-agent/agent.log
 
 COPY entrypoint.sh /
