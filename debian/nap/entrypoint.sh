@@ -2,7 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2025.06.26.2 ------"
+echo "------ version 2025.06.26.3 ------"
 
 # copy initial file to the empy volume, in case of being empty
 cp -p --no-clobber /nginx-initial-config/* /etc/nginx/
