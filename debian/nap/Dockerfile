@@ -1,15 +1,16 @@
-FROM debian:bullseye-slim as nginx-installer
+FROM debian:buster as nginx-installer
 
 LABEL maintainer="F5 SE"
 
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
-ARG NGINX_PLUS_VERSION=29
-ARG CONTROLLER_HOST
-ARG INSTANCE_GROUP
+# ARG NGINX_PLUS_VERSION=29
+ARG NGINX_AGENT_VERSION=2.41.2
+# ARG CONTROLLER_HOST
+# ARG INSTANCE_GROUP
 
 # create nginx user/group first, to be consistent throughout docker variants
-RUN addgroup --system nginx || true \
-    && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true
+# RUN addgroup --system nginx || true \
+#     && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true
 
 # Install prerequisite packages
 RUN  apt-get update \
@@ -35,35 +36,47 @@ RUN  apt-get update \
                         git \
                         libxml2 \
                         iproute2 \
-                        debian-keyring
+                        debian-archive-keyring
 
-# Download and add the NGINX signing keys
-RUN wget https://cs.nginx.com/static/keys/nginx_signing.key && apt-key add nginx_signing.key \
-    && wget https://cs.nginx.com/static/keys/app-protect-security-updates.key && apt-key add app-protect-security-updates.key
+# Download and add the NGINX signing keys:
+RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
+    gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+RUN wget -qO - https://cs.nginx.com/static/keys/app-protect-security-updates.key | \
+    gpg --dearmor | tee /usr/share/keyrings/app-protect-security-updates.gpg >/dev/null
 
-# Add NGINX Plus repository
-RUN printf "deb https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nginx-plus.list
+# Add NGINX Plus repository:
+RUN printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\n" | \
+    tee /etc/apt/sources.list.d/nginx-plus.list
 
-# Add NGINX App Protect WAF repositories + NGINX Management Suite Package Repository
-RUN printf "deb https://pkgs.nginx.com/app-protect/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nginx-app-protect.list \
-    && printf "deb https://pkgs.nginx.com/app-protect-security-updates/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/app-protect-security-updates.list \
-    && printf "deb https://pkgs.nginx.com/nms/debian `lsb_release -cs` nginx-plus\n" | tee /etc/apt/sources.list.d/nms.list \
-    && printf "deb https://pkgs.nginx.com/adm/debian `lsb_release -cs` nginx-plus\n" | tee -a /etc/apt/sources.list.d/nms.list
+# Add NGINX App Protect WAF repositories:
+RUN printf "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    https://pkgs.nginx.com/app-protect/debian `lsb_release -cs` nginx-plus\n" | \
+    tee /etc/apt/sources.list.d/nginx-app-protect.list
+RUN printf "deb [signed-by=/usr/share/keyrings/app-protect-security-updates.gpg] \
+    https://pkgs.nginx.com/app-protect-security-updates/debian `lsb_release -cs` nginx-plus\n" | \
+    tee /etc/apt/sources.list.d/app-protect-security-updates.list
 
 # Download the apt configuration to `/etc/apt/apt.conf.d`:
 RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 
-# Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus)
+# Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus):
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    apt-get update && apt-get install -y app-protect nginx-plus-module-njs nginx-plus-module-metrics
+    apt-get update && apt-get install -y app-protect
 
 FROM nginx-installer as agent-installer
 # Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-  curl -k -sS -L "https://${CONTROLLER_HOST}/install/nginx-agent" > install.sh \
-  && sh ./install.sh --instance-group ${INSTANCE_GROUP}
+    echo "deb https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
+      | sudo tee /etc/apt/sources.list.d/nginx-agent.list \
+    && echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
+    && apt update \
+    && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
 
 FROM agent-installer as cleaner
 # cleanup sensitive nginx-plus data

@@ -2,19 +2,19 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2023.07.03.4 ------"
+echo "------ version 2025.06.26.1 ------"
 
 handle_term()
 {
-    echo "received TERM signal"
-    echo "stopping nginx ..."
+    echo "$(date +%H:%M:%S:%N): received TERM signal"
+    # stopping nginx ...
     kill -TERM "${nginx_pid}" 2>/dev/null
 }
 
 trap 'handle_term' TERM
 
 # Launch nginx app protect WAF
-echo "starting app protect waf ..."
+echo "starting nginx app protect waf ..."
 /bin/su -s /bin/sh -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &" nginx
 
 # Launch nginx
@@ -35,6 +35,7 @@ wait_workers
 
 # Launch nginx-agent
 /usr/bin/nginx-agent &
+echo "nginx-agent started"
 
 agent_pid=$!
 
@@ -45,25 +46,23 @@ fi
 
 wait_term()
 {
-    wait ${agent_pid}
-    trap '' EXIT INT TERM
-    kill -QUIT "${nginx_pid}" 2>/dev/null
-    echo "waiting for nginx to stop..."
     wait ${nginx_pid}
-    kill -TERM "${agent_pid}" 2>/dev/null
-    echo "terminating nginx-agent..."
+    trap '' EXIT INT TERM
+    echo "$(date +%H:%M:%S:%N): nginx stopped"
+    # stopping nginx-agent ...
+    kill -QUIT "${agent_pid}" 2>/dev/null
+    echo "$(date +%H:%M:%S:%N): nginx-agent stopped..."
     # unregister - start
-    echo "UNREGISTER instance from NMS"
-    export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
-    export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
-    export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
-    export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
-    sleep 60
-    sh remove.sh
-    echo "UNREGISTER done"
+#    echo "UNREGISTER instance from NMS"
+#    export ENV_CONTROLLER_USER=${ENV_CONTROLLER_USER}
+#    export ENV_CONTROLLER_PASSWORD=${ENV_CONTROLLER_PASSWORD}
+#    export ENV_CONTROLLER_HOST=${ENV_CONTROLLER_HOST}
+#    export ENV_CONTROLLER_INSTANCE_GROUP=${ENV_CONTROLLER_INSTANCE_GROUP}
+#    sleep 60
+#    sh remove.sh
+#    echo "UNREGISTER done"
     # unregister - end
 }
 
 wait_term
-
-echo "nginx process has stopped, exiting."
+echo "$(date +%H:%M:%S:%N):exiting."
