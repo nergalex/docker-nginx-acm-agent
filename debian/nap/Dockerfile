@@ -102,7 +102,6 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
 
 FROM nginx-agent-installer as nginx-initial-config
-# implement changes required to run NGINX as an unprivileged user
 RUN mkdir -p /nginx-initial-config
 COPY nginx.conf /nginx-initial-config/
 RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
@@ -112,7 +111,11 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && chmod -R go+rw /nginx-initial-config/ \
     && chown -R nginx:nginx-agent /nginx-initial-config/
 
-FROM nginx-initial-config as cleaner
+FROM nginx-initial-config as nginx-agent-initial-config
+RUN rm -f /etc/nginx-agent/nginx-agent.conf
+COPY nginx-agent.conf /etc/nginx-agent/
+
+FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
 RUN apt-get autoremove --purge -y \
       gnupg \
