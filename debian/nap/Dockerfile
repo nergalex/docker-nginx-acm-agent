@@ -114,6 +114,7 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
 FROM nginx-initial-config as nginx-agent-initial-config
 RUN rm -f /etc/nginx-agent/nginx-agent.conf
 COPY nginx-agent.conf /etc/nginx-agent/
+RUN chown -R nginx:nginx-agent /etc/nginx-agent/nginx-agent.conf
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
