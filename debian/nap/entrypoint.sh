@@ -4,6 +4,9 @@
 #
 echo "------ version 2025.06.26.1 ------"
 
+# copy initial file to the empy volume, in case of being empty
+cp -p --no-clobber /nginx-initial-config/* /etc/nginx/
+
 handle_term()
 {
     echo "$(date +%H:%M:%S:%N): received TERM signal"

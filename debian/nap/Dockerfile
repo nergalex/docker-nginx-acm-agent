@@ -66,9 +66,10 @@ RUN wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 # Update the repository and install the most recent version of the NGINX App Protect WAF package (which includes NGINX Plus):
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    apt-get update && apt-get install -y app-protect
+    apt-get update \
+    && apt-get install -y app-protect
 
-FROM nginx-installer as agent-installer
+FROM nginx-installer as nginx-agent-installer
 # Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
@@ -99,7 +100,18 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && apt update \
     && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
 
-FROM agent-installer as cleaner
+FROM nginx-agent-installer as nginx-initial-config
+# implement changes required to run NGINX as an unprivileged user
+RUN mkdir -p /nginx-initial-config
+COPY nginx.conf /nginx-initial-config/
+RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
+    && cp /etc/nginx/fastcgi_params /nginx-initial-config/ \
+    && cp /etc/nginx/mime.types  /nginx-initial-config/ \
+    && cp /etc/nginx/scgi_params /nginx-initial-config/ \
+    && chmod -R go+rw /nginx-initial-config/ \
+    && chown -R nginx:nginx-agent /nginx-initial-config/
+
+FROM nginx-initial-config as cleaner
 # cleanup sensitive nginx-plus data
 RUN apt-get autoremove --purge -y \
       gnupg \
@@ -119,8 +131,20 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 COPY entrypoint.sh /
 COPY remove.sh /
 
-EXPOSE 80
-EXPOSE 443
+# NGINX OIDC GW
+EXPOSE 8000
+EXPOSE 4443
+# NGINX JWT VALIDATION GW
+EXPOSE 8001
+EXPOSE 5443
+# NGINX API
+EXPOSE 8080
+# HEALTHCHECK
+EXPOSE 8081
+# NGINX-agent API
+EXPOSE 8032
+# NGINX sync zones
+EXPOSE 9000
 STOPSIGNAL SIGTERM
 ENTRYPOINT ["bash", "/entrypoint.sh"]
 
