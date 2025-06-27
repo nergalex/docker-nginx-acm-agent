@@ -1,10 +1,11 @@
-FROM debian:bullseye-slim as nginx-installer
+ARG RELEASE=bookworm
+FROM debian:${RELEASE}-slim as nginx-installer
 
 LABEL maintainer="F5 SE"
 
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
 # ARG NGINX_PLUS_VERSION=29
-ARG NGINX_AGENT_VERSION=2.41.2
+ARG NGINX_AGENT_VERSION=2.41.2~bookworm
 # ARG CONTROLLER_HOST
 # ARG INSTANCE_GROUP
 
@@ -16,10 +17,10 @@ ARG NGINX_AGENT_VERSION=2.41.2
 RUN  apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests -y \
                         ca-certificates \
-                        gnupg2 \
+                        gnupg1 \
                         lsb-release \
-                        curl  \
-                        sudo\
+                        curl \
+                        sudo \
                         vim  \
                         procps  \
                         gnupg  \
@@ -35,8 +36,10 @@ RUN  apt-get update \
                         wget \
                         git \
                         libxml2 \
-                        iproute2 \
-                        debian-archive-keyring
+                        gettext-base \
+                        gnupg2 \
+                        debian-archive-keyring \
+                        dnsutils
 
 # Download and add the NGINX signing keys:
 RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
@@ -69,8 +72,26 @@ FROM nginx-installer as agent-installer
 # Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    echo "deb https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
-      | sudo tee /etc/apt/sources.list.d/nginx-agent.list \
+    NGINX_GPGKEYS="573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 8540A6F18833A80E9C1653A42FD21310B49F6B46 9E9BE90EACBCDE69FE9B204CBCDCD8A38D88A2B3"; \
+    NGINX_GPGKEY_PATH=/usr/share/keyrings/nginx-archive-keyring.gpg; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    found=''; \
+    for NGINX_GPGKEY in $NGINX_GPGKEYS; do \
+        for server in \
+            hkp://keyserver.ubuntu.com:80 \
+            pgp.mit.edu \
+        ; do \
+            echo "Fetching GPG key $NGINX_GPGKEY from $server"; \
+            gpg1 --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$NGINX_GPGKEY" && found=yes && break; \
+        done; \
+        test -z "$found" && echo >&2 "error: failed to fetch GPG key $NGINX_GPGKEY" && exit 1; \
+    done; \
+    gpg1 --export "$NGINX_GPGKEYS" > "$NGINX_GPGKEY_PATH" ; \
+    rm -rf "$GNUPGHOME"; \
+    apt-get remove --purge --auto-remove -y gnupg1 && rm -rf /var/lib/apt/lists/* \
+    && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\n" > /etc/apt/sources.list.d/nginx-plus.list \
+    && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
+    | tee /etc/apt/sources.list.d/nginx-agent.list \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
