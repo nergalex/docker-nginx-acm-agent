@@ -129,11 +129,9 @@ RUN apt-get autoremove --purge -y \
 
 FROM cleaner as runner
 # Forward request logs to Docker log collector
-RUN mkdir /var/log/nginx \
-    && touch /var/log/nginx/error.log \
+RUN touch /var/log/nginx/error.log \
     && chown -R nginx:nginx-agent /var/log/nginx \
     && chmod -R go+rw /var/log/nginx \
-    && mkdir /var/log/nginx-agent/ \
     && touch /var/log/nginx-agent/agent.log \
     && chown -R nginx:nginx-agent /var/log/nginx-agent \
     && chmod -R g+rw /var/log/nginx-agent \
