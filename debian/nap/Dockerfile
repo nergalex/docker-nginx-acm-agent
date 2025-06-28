@@ -129,10 +129,21 @@ RUN apt-get autoremove --purge -y \
 
 FROM cleaner as runner
 # Forward request logs to Docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log \
-  && ln -sf /dev/stdout /var/log/app_protect/bd-socket-plugin.log \
-  && ln -sf /dev/stdout /var/log/nginx-agent/agent.log
+RUN mkdir /var/log/nginx \
+    && touch /var/log/nginx/error.log \
+    && chown -R nginx:nginx-agent /var/log/nginx \
+    && chmod -R go+rw /var/log/nginx \
+    && mkdir /var/log/nginx-agent/ \
+    && touch /var/log/nginx-agent/agent.log \
+    && chown -R nginx:nginx-agent /var/log/nginx-agent \
+    && chmod -R g+rw /var/log/nginx-agent \
+    && touch /var/log/app_protect/bd-socket-plugin.log \
+    && chown -R nginx:nginx-agent /var/log/app_protect/ \
+    && chmod -R g+rw /var/log/app_protect \
+    && ln -sf /dev/stdout /var/log/nginx/access.log \
+    && ln -sf /dev/stderr /var/log/nginx/error.log \
+    && ln -sf /dev/stdout /var/log/nginx-agent/agent.log \
+    && ln -sf /dev/stdout /var/log/app_protect/bd-socket-plugin.log
 
 COPY entrypoint.sh /
 COPY remove.sh /
