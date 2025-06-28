@@ -152,6 +152,7 @@ EXPOSE 8032
 # NGINX sync zones
 EXPOSE 9000
 STOPSIGNAL SIGTERM
+USER nginx
 ENTRYPOINT ["bash", "/entrypoint.sh"]
 
 
