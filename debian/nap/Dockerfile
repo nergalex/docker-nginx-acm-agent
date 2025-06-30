@@ -109,17 +109,16 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && chmod -R go+rw /var/run/nginx-agent \
     && chown -R nginx:nginx-agent /var/lib/nginx-agent/ \
     && chmod -R go+rw /var/lib/nginx-agent/ \
-    && mkdir /var/log/nginx \
     && touch /var/log/nginx/error.log \
     && chown -R nginx:nginx-agent /var/log/nginx \
     && chmod -R go+rw /var/log/nginx \
-    && mkdir /var/log/nginx-agent/ \
     && touch /var/log/nginx-agent/agent.log \
     && chown -R nginx:nginx-agent /var/log/nginx-agent \
     && chmod -R g+rw /var/log/nginx-agent \
+    && mkdir /etc/nms/ \
     && chown -R nginx:nginx-agent /etc/nms/ \
     && chmod -R g+rw /etc/nms/ \
-    && chown -R nginx:nginx-agent /etc/app_protect \
+    && chown -R nginx:nginx-agent /etc/app_protect
 
 FROM nginx-agent-installer as nginx-initial-config
 RUN mkdir -p /nginx-initial-config
