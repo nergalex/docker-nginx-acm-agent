@@ -99,7 +99,27 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && apt update \
-    && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
+    && apt install -y nginx-agent=${NGINX_AGENT_VERSION} \
+    && usermod -a -G nginx-agent nginx \
+    && chown -R nginx:nginx-agent /etc/nginx \
+    && chmod -R go+rw /etc/nginx \
+    && chown -R nginx:nginx-agent /etc/nginx-agent/ \
+    && chmod -R go+rw /etc/nginx-agent/ \
+    && chown -R nginx:nginx-agent /var/run/nginx-agent  \
+    && chmod -R go+rw /var/run/nginx-agent \
+    && chown -R nginx:nginx-agent /var/lib/nginx-agent/ \
+    && chmod -R go+rw /var/lib/nginx-agent/ \
+    && mkdir /var/log/nginx \
+    && touch /var/log/nginx/error.log \
+    && chown -R nginx:nginx-agent /var/log/nginx \
+    && chmod -R go+rw /var/log/nginx \
+    && mkdir /var/log/nginx-agent/ \
+    && touch /var/log/nginx-agent/agent.log \
+    && chown -R nginx:nginx-agent /var/log/nginx-agent \
+    && chmod -R g+rw /var/log/nginx-agent \
+    && chown -R nginx:nginx-agent /etc/nms/ \
+    && chmod -R g+rw /etc/nms/ \
+    && chown -R nginx:nginx-agent /etc/app_protect \
 
 FROM nginx-agent-installer as nginx-initial-config
 RUN mkdir -p /nginx-initial-config
@@ -137,12 +157,9 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 COPY entrypoint.sh /
 COPY remove.sh /
 
-# NGINX OIDC GW
+# App services
 EXPOSE 8000
 EXPOSE 4443
-# NGINX JWT VALIDATION GW
-EXPOSE 8001
-EXPOSE 5443
 # HEALTHCHECK
 EXPOSE 8081
 # NGINX-agent API
