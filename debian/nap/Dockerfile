@@ -99,8 +99,8 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && apt update \
-    && apt install -y nginx-agent=${NGINX_AGENT_VERSION} \
-    && usermod -a -G nginx-agent nginx
+    && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
+#     && usermod -a -G nginx-agent nginx
 #     && mkdir /etc/nms/ \
 #     && chown -R root:nginx-agent /etc/nms/ \
 #     && chmod -R g+rw /etc/nms/
@@ -127,14 +127,14 @@ COPY nginx.conf /nginx-initial-config/
 RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && cp /etc/nginx/fastcgi_params /nginx-initial-config/ \
     && cp /etc/nginx/mime.types  /nginx-initial-config/ \
-    && cp /etc/nginx/scgi_params /nginx-initial-config/ \
-    && chmod -R go+rw /nginx-initial-config/ \
-    && chown -R nginx:nginx-agent /nginx-initial-config/
+    && cp /etc/nginx/scgi_params /nginx-initial-config/
+#     && chmod -R go+rw /nginx-initial-config/ \
+#     && chown -R nginx:nginx-agent /nginx-initial-config/
 
 FROM nginx-initial-config as nginx-agent-initial-config
-RUN rm -f /etc/nginx-agent/nginx-agent.conf
-COPY nginx-agent.conf /etc/nginx-agent/
-RUN chown -R nginx:nginx-agent /etc/nginx-agent/nginx-agent.conf
+COPY nginx-agent.conf /
+RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
+    && rm /nginx-agent.conf
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
