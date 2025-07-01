@@ -37,7 +37,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx-agent
+/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx
 echo "nginx-agent started"
 
 agent_pid=$!
