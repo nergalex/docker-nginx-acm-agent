@@ -128,8 +128,8 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && cp /etc/nginx/fastcgi_params /nginx-initial-config/ \
     && cp /etc/nginx/mime.types  /nginx-initial-config/ \
     && cp /etc/nginx/scgi_params /nginx-initial-config/
-#     && chmod -R go+rw /nginx-initial-config/ \
-#     && chown -R nginx:nginx-agent /nginx-initial-config/
+    && chmod -R g+rw /nginx-initial-config/ \
+    && chown -R root:nginx-agent /nginx-initial-config/
 
 FROM nginx-initial-config as nginx-agent-initial-config
 COPY nginx-agent.conf /
