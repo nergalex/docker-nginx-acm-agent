@@ -39,7 +39,8 @@ RUN  apt-get update \
                         gnupg2 \
                         debian-archive-keyring \
                         dnsutils \
-                        iproute2
+                        iproute2 \
+                        inotify-tools
 
 # Download and add the NGINX signing keys:
 RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
