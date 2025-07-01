@@ -9,8 +9,8 @@ ARG NGINX_AGENT_VERSION=2.41.2~bookworm
 # ARG INSTANCE_GROUP
 
 # create nginx user/group first, to be consistent throughout docker variants
-RUN addgroup --system nginx || true \
-    && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true
+# RUN addgroup --system nginx || true \
+#     && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx || true
 
 # Install prerequisite packages
 RUN  apt-get update \
@@ -100,10 +100,10 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && apt update \
     && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
-    && usermod -a -G nginx-agent nginx \
-    && mkdir /etc/nms/ \
-    && chown -R root:nginx-agent /etc/nms/ \
-    && chmod -R g+rw /etc/nms/ \
+#     && usermod -a -G nginx-agent nginx \
+#     && mkdir /etc/nms/ \
+#     && chown -R root:nginx-agent /etc/nms/ \
+#     && chmod -R g+rw /etc/nms/
 #     && chown -R nginx:nginx-agent /etc/app_protect
 #     && chown -R nginx:nginx-agent /etc/nginx \
 #     && chmod -R go+rw /etc/nginx \
