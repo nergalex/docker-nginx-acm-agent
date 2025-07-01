@@ -2,7 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2025.07.01.3 ------"
+echo "------ version 2025.07.01.5 ------"
 
 # copy initial file to the empy volume, in case of being empty
 cp -p --no-clobber /nginx-initial-config/* /etc/nginx/
@@ -37,7 +37,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx
+/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx-agent
 echo "nginx-agent started"
 
 agent_pid=$!

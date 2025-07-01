@@ -135,7 +135,9 @@ FROM nginx-initial-config as nginx-agent-initial-config
 COPY nginx-agent.conf /
 RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
     && rm /nginx-agent.conf \
-    && chown -R root:nginx-agent /etc/nginx-agent/nginx-agent.conf
+    && chown -R root:nginx-agent /etc/nginx-agent/nginx-agent.conf \
+    && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
+    && usermod -a -G nginx nginx-agent
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
