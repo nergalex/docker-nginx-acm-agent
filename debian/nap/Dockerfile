@@ -99,8 +99,8 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
     && apt update \
-    && apt install -y nginx-agent=${NGINX_AGENT_VERSION}
-#     && usermod -a -G nginx-agent nginx \
+    && apt install -y nginx-agent=${NGINX_AGENT_VERSION} \
+    && usermod -a -G nginx-agent nginx
 #     && mkdir /etc/nms/ \
 #     && chown -R root:nginx-agent /etc/nms/ \
 #     && chmod -R g+rw /etc/nms/
