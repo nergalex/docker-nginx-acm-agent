@@ -140,7 +140,9 @@ RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
     && usermod -a -G nginx-agent root \
     && touch /var/log/nginx/error.log \
     && chmod -R g+rw /var/log/ \
-    && chown -R root:nginx-agent /var/log/
+    && chown -R root:nginx-agent /var/log/ \
+    && chmod -R g+rw /opt \
+    && chown -R root:nginx-agent /opt
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
