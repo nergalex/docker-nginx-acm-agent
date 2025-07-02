@@ -108,8 +108,6 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 #     && chmod -R go+rw /etc/nginx \
 #     && chown -R nginx:nginx-agent /etc/nginx-agent/ \
 #     && chmod -R go+rw /etc/nginx-agent/ \
-#     && chown -R nginx:nginx-agent /var/run/nginx-agent  \
-#     && chmod -R go+rw /var/run/nginx-agent \
 #     && chown -R nginx:nginx-agent /var/lib/nginx-agent/ \
 #     && chmod -R go+rw /var/lib/nginx-agent/ \
 #     && touch /var/log/nginx/error.log \
@@ -128,18 +126,20 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && cp /etc/nginx/mime.types  /nginx-initial-config/ \
     && cp /etc/nginx/scgi_params /nginx-initial-config/ \
     && chmod -R g+rw /nginx-initial-config/ \
-    && chown -R root:nginx-agent /nginx-initial-config/
+    && chown -R :nginx-agent /nginx-initial-config/
 
 FROM nginx-initial-config as nginx-agent-initial-config
 COPY nginx-agent.conf /
 RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
     && rm /nginx-agent.conf \
-    && chown -R root:nginx-agent /etc/nginx-agent/nginx-agent.conf \
-    && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
     && usermod -a -G nginx-agent nginx \
     && usermod -a -G nginx-agent root \
+    && chown -R :nginx-agent /etc/nginx-agent/nginx-agent.conf \
+    && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
+    && chown -R :nginx-agent /opt \
     && chmod -R g+rw /opt \
-    && chown -R root:nginx-agent /opt
+    && chown -R :nginx-agent /var/run/nginx-agent  \
+    && chmod -R g+rw /var/run/nginx-agent
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
