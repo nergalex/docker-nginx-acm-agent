@@ -138,9 +138,6 @@ RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
     && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
     && usermod -a -G nginx-agent nginx \
     && usermod -a -G nginx-agent root \
-    && touch /var/log/nginx/error.log \
-    && chmod -R g+rw /var/log/ \
-    && chown -R root:nginx-agent /var/log/ \
     && chmod -R g+rw /opt \
     && chown -R root:nginx-agent /opt
 
@@ -160,7 +157,9 @@ FROM cleaner as runner
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log \
   && ln -sf /dev/stdout /var/log/app_protect/bd-socket-plugin.log \
-  && ln -sf /dev/stdout /var/log/nginx-agent/agent.log
+  && ln -sf /dev/stdout /var/log/nginx-agent/agent.log \
+  && chmod -R g+rw /var/log/ \
+  && chown -R root:nginx-agent /var/log/
 
 COPY entrypoint.sh /
 COPY remove.sh /
