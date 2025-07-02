@@ -142,7 +142,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stdout /var/log/app_protect/bd-socket-plugin.log \
   && ln -sf /dev/stdout /var/log/nginx-agent/agent.log \
   && chmod -R g+rw /var/log/ \
-  && chown -R root:nginx-agent /var/log/
+  && chown -R :nginx-agent /var/log/
 
 COPY entrypoint.sh /
 COPY remove.sh /
