@@ -159,6 +159,7 @@ EXPOSE 9000
 # NGINX sync zones
 EXPOSE 9001
 STOPSIGNAL SIGTERM
+USER nginx
 ENTRYPOINT ["bash", "/entrypoint.sh"]
 
 
