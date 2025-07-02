@@ -35,9 +35,10 @@ wait_workers()
 }
 
 wait_workers
+chown root:nginx-agent /nginx-tmp/nginx.pid
 
 # Launch nginx-agent
-/usr/bin/nginx-agent &
+/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx
 echo "nginx-agent started"
 
 agent_pid=$!
