@@ -35,7 +35,10 @@ wait_workers()
 }
 
 wait_workers
+
+# Allow write access to nginx-agent
 chown root:nginx-agent /nginx-tmp/nginx.pid
+chmod -R g+rw /var/log/
 
 # Launch nginx-agent
 /bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx
