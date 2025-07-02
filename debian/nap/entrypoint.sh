@@ -25,7 +25,6 @@ echo "starting nginx ..."
 /usr/sbin/nginx -p /etc/nginx -c /etc/nginx/nginx.conf -g "daemon off;" &
 
 nginx_pid=$!
-chown root:nginx-agent /nginx-tmp/nginx.pid
 
 wait_workers()
 {
@@ -38,7 +37,7 @@ wait_workers()
 wait_workers
 
 # Launch nginx-agent
-/bin/su -s /bin/sh -c "/usr/bin/nginx-agent &" nginx
+/usr/bin/nginx-agent &
 echo "nginx-agent started"
 
 agent_pid=$!
