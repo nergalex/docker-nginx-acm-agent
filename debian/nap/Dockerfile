@@ -161,5 +161,3 @@ EXPOSE 9001
 STOPSIGNAL SIGTERM
 USER nginx
 ENTRYPOINT ["bash", "/entrypoint.sh"]
-
-
