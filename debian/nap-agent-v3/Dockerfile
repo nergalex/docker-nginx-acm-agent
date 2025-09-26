@@ -44,7 +44,8 @@ RUN  apt-get update \
 
 # Download and add the NGINX signing keys:
 RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
-    gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+    gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null \
+
 RUN wget -qO - https://cs.nginx.com/static/keys/app-protect-security-updates.key | \
     gpg --dearmor | tee /usr/share/keyrings/app-protect-security-updates.gpg >/dev/null
 
@@ -70,35 +71,28 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     apt-get update \
     && apt-get install -y app-protect
 
+
 FROM nginx-installer as nginx-agent-installer
+
+# Remove any previous NGINX Plus repository and apt configuration files:
+RUN rm /etc/apt/sources.list.d/nginx-plus.list \
+    rm /etc/apt/sources.list.d/*app-protect*.list \
+    rm /etc/apt/apt.conf.d/90pkgs-nginx
+
+# Add the nginx-agent repository
+RUN echo "deb https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
+  | sudo tee /etc/apt/sources.list.d/nginx-agent.list
+
+# Create apt configuration /etc/apt/apt.conf.d/90pkgs-nginx
+RUN echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
+    && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx
+
 # Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    NGINX_GPGKEYS="573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 8540A6F18833A80E9C1653A42FD21310B49F6B46 9E9BE90EACBCDE69FE9B204CBCDCD8A38D88A2B3"; \
-    NGINX_GPGKEY_PATH=/usr/share/keyrings/nginx-archive-keyring.gpg; \
-    export GNUPGHOME="$(mktemp -d)"; \
-    found=''; \
-    for NGINX_GPGKEY in $NGINX_GPGKEYS; do \
-        for server in \
-            hkp://keyserver.ubuntu.com:80 \
-            pgp.mit.edu \
-        ; do \
-            echo "Fetching GPG key $NGINX_GPGKEY from $server"; \
-            gpg1 --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$NGINX_GPGKEY" && found=yes && break; \
-        done; \
-        test -z "$found" && echo >&2 "error: failed to fetch GPG key $NGINX_GPGKEY" && exit 1; \
-    done; \
-    gpg1 --export "$NGINX_GPGKEYS" > "$NGINX_GPGKEY_PATH" ; \
-    rm -rf "$GNUPGHOME"; \
-    apt-get remove --purge --auto-remove -y gnupg1 && rm -rf /var/lib/apt/lists/* \
-    && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\n" > /etc/apt/sources.list.d/nginx-plus.list \
-    && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
-    | tee /etc/apt/sources.list.d/nginx-agent.list \
-    && echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90pkgs-nginx \
-    && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
-    && echo "Acquire::https::pkgs.nginx.com::SslCert     \"/etc/ssl/nginx/nginx-repo.crt\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
-    && echo "Acquire::https::pkgs.nginx.com::SslKey      \"/etc/ssl/nginx/nginx-repo.key\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
-    && apt update \
+    apt update \
     && apt install -y nginx-agent=$NGINX_AGENT_VERSION
 
 FROM nginx-agent-installer as nginx-initial-config
