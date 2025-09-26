@@ -45,7 +45,6 @@ RUN  apt-get update \
 # Download and add the NGINX signing keys:
 RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
     gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null \
-
 RUN wget -qO - https://cs.nginx.com/static/keys/app-protect-security-updates.key | \
     gpg --dearmor | tee /usr/share/keyrings/app-protect-security-updates.gpg >/dev/null
 
@@ -92,8 +91,8 @@ RUN echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.
 # Install NGINX agent
 RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644 \
     --mount=type=secret,id=nginx-key,dst=/etc/ssl/nginx/nginx-repo.key,mode=0644 \
-    apt update \
-    && apt install -y nginx-agent=$NGINX_AGENT_VERSION
+    apt-get update \
+    && apt-get install -y nginx-agent=$NGINX_AGENT_VERSION
 
 FROM nginx-agent-installer as nginx-initial-config
 RUN mkdir -p /nginx-initial-config
