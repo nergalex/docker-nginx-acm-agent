@@ -92,7 +92,7 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
     rm -rf "$GNUPGHOME"; \
     apt-get remove --purge --auto-remove -y gnupg1 && rm -rf /var/lib/apt/lists/* \
     && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/plus/debian `lsb_release -cs` nginx-plus\n" > /etc/apt/sources.list.d/nginx-plus.list \
-    && echo "deb https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
+    && echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
     | tee /etc/apt/sources.list.d/nginx-agent.list \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90pkgs-nginx \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90pkgs-nginx \
