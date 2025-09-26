@@ -44,7 +44,7 @@ RUN  apt-get update \
 
 # Download and add the NGINX signing keys:
 RUN wget -qO - https://cs.nginx.com/static/keys/nginx_signing.key | \
-    gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null \
+    gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 RUN wget -qO - https://cs.nginx.com/static/keys/app-protect-security-updates.key | \
     gpg --dearmor | tee /usr/share/keyrings/app-protect-security-updates.gpg >/dev/null
 
@@ -75,11 +75,12 @@ FROM nginx-installer as nginx-agent-installer
 
 # Remove any previous NGINX Plus repository and apt configuration files:
 RUN rm /etc/apt/sources.list.d/nginx-plus.list \
-    rm /etc/apt/sources.list.d/*app-protect*.list \
-    rm /etc/apt/apt.conf.d/90pkgs-nginx
+    && rm /etc/apt/sources.list.d/*app-protect*.list \
+    && rm /etc/apt/apt.conf.d/90pkgs-nginx
 
 # Add the nginx-agent repository
-RUN echo "deb https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
+RUN echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    https://pkgs.nginx.com/nginx-agent/debian/ `lsb_release -cs` agent" \
   | sudo tee /etc/apt/sources.list.d/nginx-agent.list
 
 # Create apt configuration /etc/apt/apt.conf.d/90pkgs-nginx
@@ -97,6 +98,12 @@ RUN --mount=type=secret,id=nginx-crt,dst=/etc/ssl/nginx/nginx-repo.crt,mode=0644
 FROM nginx-agent-installer as nginx-initial-config
 RUN mkdir -p /nginx-initial-config
 COPY nginx.conf /nginx-initial-config/
+
+# Add NGINX User to nginx-agent Group
+RUN groupadd nginx-agent \
+    && usermod -a -G nginx-agent nginx \
+    && usermod -a -G nginx-agent root
+
 RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && cp /etc/nginx/fastcgi_params /nginx-initial-config/ \
     && cp /etc/nginx/mime.types  /nginx-initial-config/ \
@@ -108,8 +115,6 @@ FROM nginx-initial-config as nginx-agent-initial-config
 COPY nginx-agent.conf /
 RUN cat /nginx-agent.conf > /etc/nginx-agent/nginx-agent.conf \
     && rm /nginx-agent.conf \
-    && usermod -a -G nginx-agent nginx \
-    && usermod -a -G nginx-agent root \
     && chown -R :nginx-agent /etc/nginx-agent/nginx-agent.conf \
     && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
     && chown -R :nginx-agent /opt \
