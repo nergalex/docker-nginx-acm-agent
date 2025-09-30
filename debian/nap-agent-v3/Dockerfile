@@ -112,12 +112,15 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && chown -R :nginx-agent /nginx-initial-config/
 
 FROM nginx-initial-config as nginx-agent-initial-config
-RUN chown -R :nginx-agent /etc/nginx-agent/nginx-agent.conf \
-    && chmod -R g+rw /etc/nginx-agent/nginx-agent.conf \
+COPY nginx-agent.conf /
+RUN chown -R :nginx-agent /etc/nginx-agent \
+    && chmod -R g+rw /etc/nginx-agent \
     && chown -R :nginx-agent /opt \
     && chmod -R g+rw /opt \
     && chown -R :nginx-agent /var/run/nginx-agent  \
-    && chmod -R g+rw /var/run/nginx-agent
+    && chmod -R g+rw /var/run/nginx-agent \
+    && chown -R :nginx-agent /etc/nginx  \
+    && chmod -R g+rw /etc/nginx
 
 FROM nginx-agent-initial-config as cleaner
 # cleanup sensitive nginx-plus data
