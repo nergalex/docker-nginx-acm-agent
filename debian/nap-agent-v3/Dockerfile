@@ -112,7 +112,6 @@ RUN cp /etc/nginx/uwsgi_params /nginx-initial-config/ \
     && chown -R :nginx-agent /nginx-initial-config/
 
 FROM nginx-initial-config as nginx-agent-initial-config
-COPY nginx-agent.conf /
 RUN chown -R :nginx-agent /etc/nginx-agent \
     && chmod -R g+rw /etc/nginx-agent \
     && chown -R :nginx-agent /opt \
