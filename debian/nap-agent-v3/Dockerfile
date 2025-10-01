@@ -118,6 +118,8 @@ RUN chown -R :nginx-agent /etc/nginx-agent \
     && chmod -R g+rw /opt \
     && chown -R :nginx-agent /var/run/nginx-agent  \
     && chmod -R g+rw /var/run/nginx-agent \
+    && chown -R :nginx-agent /var/lib/nginx-agent  \
+    && chmod -R g+rw /var/lib/nginx-agent \
     && chown -R :nginx-agent /etc/nginx  \
     && chmod -R g+rw /etc/nginx
 
@@ -156,5 +158,5 @@ EXPOSE 9000
 # NGINX sync zones
 EXPOSE 9001
 STOPSIGNAL SIGTERM
-USER nginx
+# USER nginx
 ENTRYPOINT ["bash", "/entrypoint.sh"]

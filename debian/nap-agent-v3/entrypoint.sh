@@ -2,7 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2025.10.01.1 ------"
+echo "------ version 2025.10.01.2 ------"
 
 # copy initial file to the empy volume, in case of being empty
 cp -p --no-clobber /nginx-initial-config/* /etc/nginx/
@@ -42,7 +42,7 @@ do
   echo "wait for nginx app protect WAF ready..."
   sleep 1
 done
-chown nginx:nginx /opt/app_protect/pipe/*
+chown :nginx-agent /opt/app_protect/pipe/*
 
 
 # Launch nginx-agent
