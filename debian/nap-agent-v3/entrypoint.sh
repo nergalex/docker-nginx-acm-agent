@@ -2,7 +2,7 @@
 #
 # This script launches nginx and nginx-agent
 #
-echo "------ version 2025.09.30.2 ------"
+echo "------ version 2025.10.01.1 ------"
 
 # copy initial file to the empy volume, in case of being empty
 cp -p --no-clobber /nginx-initial-config/* /etc/nginx/
@@ -15,10 +15,6 @@ handle_term()
 }
 
 trap 'handle_term' TERM
-
-# Launch nginx app protect WAF
-echo "starting nginx app protect waf ..."
-/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &
 
 # Launch nginx
 echo "starting nginx ..."
@@ -36,8 +32,21 @@ wait_workers()
 
 wait_workers
 
+# Launch nginx app protect WAF
+echo "starting nginx app protect waf ..."
+su - nginx -s /bin/bash -c "/opt/app_protect/bin/bd_agent &"
+su - nginx -s /bin/bash -c "/usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 471859200 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log &"
+
+while [ ! -e /opt/app_protect/pipe/app_protect_plugin_socket ] || [ ! -e /opt/app_protect/pipe/ts_agent_pipe ]
+do
+  echo "wait for nginx app protect WAF ready..."
+  sleep 1
+done
+chown nginx:nginx /opt/app_protect/pipe/*
+
+
 # Launch nginx-agent
-/usr/bin/nginx-agent &
+sg nginx-agent "/usr/bin/nginx-agent" &
 echo "nginx-agent started"
 
 agent_pid=$!
